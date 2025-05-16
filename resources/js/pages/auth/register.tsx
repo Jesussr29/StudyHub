@@ -55,7 +55,7 @@ export default function Register() {
                                     <Label htmlFor="name"><ShinyText text="Nombre" disabled={false} speed={3} className='custom-class' /></Label>
                                     <Input
                                         id="name"
-                                        type="text"
+                                        type="text" 
                                         required
                                         autoFocus
                                         tabIndex={1}
