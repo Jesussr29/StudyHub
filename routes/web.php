@@ -7,8 +7,8 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-Route::get('/hola', function () {
-    return Inertia::render('WelcomeCustom/Index');
+Route::get('/welcome', function () {
+    return Inertia::render('welcome/Index');
 });
 
 
