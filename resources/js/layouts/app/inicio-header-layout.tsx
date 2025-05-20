@@ -1,4 +1,4 @@
-import GooeyNav from '@/components/GooeyNav/GooeyNav';
+import GooeyNav from '@/components/reactBits/GooeyNav/GooeyNav';
 import { faArrowRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
@@ -30,7 +30,7 @@ export default function MenuDesplegable() {
         {/* Botón hamburguesa */}
         <button
           onClick={toggleMenu}
-          className={`z-50 text-2xl text-white transition-all duration-300 ${menuAbierto ? 'absolute top-12 right-20' : 'relative'}`}
+          className={`z-50 text-2xl text-white transition-all duration-900 ${menuAbierto ? 'absolute top-12 right-20' : 'relative'}`}
         >
           <FontAwesomeIcon icon={menuAbierto ? faTimes : faBars} />
         </button>
@@ -38,7 +38,7 @@ export default function MenuDesplegable() {
 
       {/* Overlay menú */}
       <div
-        className={`fixed inset-0 z-40 flex h-[100%] overflow-y-auto transition-transform duration-300 ${menuAbierto ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-0 z-40 flex h-[100%] overflow-y-auto transition-transform duration-900 ${menuAbierto ? 'translate-x-0' : 'translate-x-full'}`}
       >
         {/* Mitad izquierda: Logo */}
         <div className="hidden w-1/2 items-center justify-center bg-[#02040b] md:flex">
