@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 export default function MenuDesplegable() {
     const [menuAbierto, setMenuAbierto] = useState(false);
-    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('mi academia'); // Estado para categoría seleccionada
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('mi academia'); 
 
     const items = [
         { label: 'Inicio', href: '#', onClick: () => setCategoriaSeleccionada('') },
@@ -30,7 +30,7 @@ export default function MenuDesplegable() {
 
     return (
         <header className="relative bg-[#02040b] text-white shadow-md">
-            <nav className="mx-auto flex w-full max-w-6xl items-center justify-between p-4">
+            <nav className="fixed mx-auto flex w-full max-w-6xl items-center justify-between p-4">
                 {/* Izquierda: Logo */}
                 <div className="flex items-center gap-2">
                     <img
