@@ -30,7 +30,7 @@ export default function MenuDesplegable() {
 
     return (
         <header className="relative bg-[#02040b] text-white shadow-md">
-            <nav className="fixed mx-auto flex w-full max-w-6xl items-center justify-between p-4">
+            <nav className="mx-auto flex w-full max-w-6xl items-center justify-between p-4">
                 {/* Izquierda: Logo */}
                 <div className="flex items-center gap-2">
                     <img
