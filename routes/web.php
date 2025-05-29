@@ -11,6 +11,14 @@ Route::get('/welcome', function () {
     return Inertia::render('welcome/Index');
 });
 
+Route::get('/login', function () {
+    return Inertia::render('auth/login');
+});
+
+Route::get('/home', function () {
+    return Inertia::render('home/Index');
+});
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
