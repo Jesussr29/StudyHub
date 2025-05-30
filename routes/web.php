@@ -1,29 +1,37 @@
 <?php
 
+use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', function () {
+        return Inertia::render('auth/login');
+    })->name('login');
 
-Route::get('/welcome', function () {
-    return Inertia::render('welcome/Index');
+    Route::get('/register', function () {
+        return Inertia::render('auth/register');
+    })->name('register');
+
+    Route::get('/', function () {
+        return Inertia::render('welcome');
+    })->name('home');
+
+    Route::get('/welcome', function () {
+        return Inertia::render('welcome/Index');
+    })->name('welcome');
 });
-
-Route::get('/login', function () {
-    return Inertia::render('auth/login');
-});
-
-Route::get('/home', function () {
-    return Inertia::render('home/Index');
-});
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
+    Route::get('/dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+    Route::get('/home', function () {
+        return Inertia::render('home/Index');
+    })->name('home');
+
+    Route::get('/profile', [ProfileController::class, 'index']);
+
 });
 
 require __DIR__.'/settings.php';
