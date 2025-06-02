@@ -1,28 +1,31 @@
+interface Props {
+  user: any;
+  courses: any[];
+}
+
+
 import ShinyText from '@/components/reactBits/ShinyText/ShinyText';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useEffect, useRef, useState } from 'react';
 
-const cursos = [
-    {
-        titulo: 'Desarrollo Web',
-        descripcion: 'Aprende HTML, CSS y JavaScript desde cero.',
-        img: '/img/carrousel1.jpg',
-    },
-    {
-        titulo: 'Data Science',
-        descripcion: 'Introducción a análisis de datos y machine learning.',
-        img: '/img/carrousel2.jpg',
-    },
-    {
-        titulo: 'Diseño UX/UI',
-        descripcion: 'Crea experiencias digitales atractivas y usables.',
-        img: '/img/carrusel3.jpg',
-    },
+export default function Home({ user, courses }: Props) {
+
+    console.log('user', user.name);
+
+const imagenes = [
+  '/img/carrousel1.jpg',
+  '/img/carrousel2.jpg',
+  '/img/carrusel3.jpg',
 ];
 
-export default function Home() {
+const cursos = courses.slice(0, 3).map((curso, i) => ({
+  titulo: curso.name,
+  descripcion: curso.description ?? curso.name,
+  img: imagenes[i], // imagen fija según el índice
+}));
+
     useEffect(() => {
         AOS.init({
             duration: 1000,
@@ -80,7 +83,7 @@ export default function Home() {
                 {/* Bienvenida */}
                 <div className="mt-15 flex w-[78%] flex-col">
                     <h3 className="text-3xl">
-                        Hola, <span className="font-bold">Jesús</span> ¡Elige tu siguiente reto!
+                        Hola, <span className="font-bold">{user.name}</span> ¡Elige tu siguiente reto!
                     </h3>
                     <ShinyText text="Muchisimos cursos te estan esperando." disabled={false} speed={5} className="custom-class" />
                 </div>

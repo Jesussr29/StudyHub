@@ -1,3 +1,8 @@
+interface Props {
+  user: any;
+  courses: any[];
+}
+
 import Dock from '@/components/reactBits/Dock/Dock';
 import GooeyNav from '@/components/reactBits/GooeyNav/GooeyNav';
 import { faArrowRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
