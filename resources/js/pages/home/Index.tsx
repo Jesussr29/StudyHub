@@ -2,23 +2,23 @@ import ShinyText from '@/components/reactBits/ShinyText/ShinyText';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const cursos = [
     {
         titulo: 'Desarrollo Web',
         descripcion: 'Aprende HTML, CSS y JavaScript desde cero.',
-        img: "/img/carrousel1.jpg"
+        img: '/img/carrousel1.jpg',
     },
     {
         titulo: 'Data Science',
         descripcion: 'Introducción a análisis de datos y machine learning.',
-        img: "/img/carrousel2.jpg"
+        img: '/img/carrousel2.jpg',
     },
     {
         titulo: 'Diseño UX/UI',
         descripcion: 'Crea experiencias digitales atractivas y usables.',
-        img: ""
+        img: '/img/carrusel3.jpg',
     },
 ];
 
@@ -42,19 +42,7 @@ export default function Home() {
 
     const [indice, setIndice] = useState(0);
     const [fade, setFade] = useState(true);
-
-    // Cambio automático cada 5 segundos
-    useEffect(() => {
-        const intervalo = setInterval(() => {
-            setFade(false); // Inicia fade out
-            setTimeout(() => {
-                setIndice((prev) => (prev === cursos.length - 1 ? 0 : prev + 1));
-                setFade(true); // Fade in
-            }, 500); // duración de la animación
-        }, 5000);
-
-        return () => clearInterval(intervalo);
-    }, []);
+    const intervaloRef = useRef<NodeJS.Timeout | null>(null);
 
     const cambiarIndice = (nuevoIndice: number) => {
         setFade(false);
@@ -63,6 +51,23 @@ export default function Home() {
             setFade(true);
         }, 500);
     };
+
+    // Reiniciar intervalo cada vez que cambie el índice
+    useEffect(() => {
+        if (intervaloRef.current) clearInterval(intervaloRef.current);
+
+        intervaloRef.current = setInterval(() => {
+            setFade(false);
+            setTimeout(() => {
+                setIndice((prev) => (prev === cursos.length - 1 ? 0 : prev + 1));
+                setFade(true);
+            }, 500);
+        }, 5000);
+
+        return () => {
+            if (intervaloRef.current) clearInterval(intervaloRef.current);
+        };
+    }, [indice]);
 
     return (
         <>
@@ -83,33 +88,36 @@ export default function Home() {
                 <div className="relative mx-auto mt-10 flex w-full max-w-6xl items-center justify-center p-6 select-none">
                     {/* Botón anterior */}
                     <button
-                        style={{ color: 'white', fontSize: '30px' }}
+                        style={{ color: 'white' }}
                         onClick={() => cambiarIndice(indice === 0 ? cursos.length - 1 : indice - 1)}
                         className="absolute left-0 z-10 ml-2 rounded-full p-3 text-gray-700 transition-colors hover:bg-gray-400"
                         aria-label="Anterior curso"
                     >
-                        ‹
+                        <div style={{ color: 'white', fontSize: '30px', marginTop: '-3px' }}>‹</div>
                     </button>
 
                     {/* Contenido carrusel */}
                     <div
-                    style={{ backgroundImage: `url(${cursos[indice].img})`, backgroundSize: "cover" }}
+                        style={{ backgroundImage: `url(${cursos[indice].img})`, backgroundSize: 'cover' }}
                         className={`mx-12 flex h-74 w-full flex-col items-center justify-center rounded-xl bg-gradient-to-br from-white via-gray-100 to-gray-200 p-8 text-gray-800 shadow-lg transition-opacity duration-500 ${
                             fade ? 'opacity-100' : 'opacity-0'
                         }`}
                     >
-                        <h3 className="mb-4 text-4xl font-semibold text-white">{cursos[indice].titulo}</h3>
-                        <p className="max-w-xl text-center text-lg text-white">{cursos[indice].descripcion}</p>
+                        <h3 className="mb-4 text-4xl font-semibold text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.9)]">{cursos[indice].titulo}</h3>
+                        <p className="max-w-xl text-center text-lg text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.9)]">{cursos[indice].descripcion}</p>
+                        <button className="mt-6 rounded-xl bg-yellow-500 px-6 py-2 font-semibold text-black shadow-md transition duration-300 ease-in-out hover:bg-yellow-600">
+                            Comenzar curso
+                        </button>
                     </div>
 
                     {/* Botón siguiente */}
                     <button
-                        style={{ color: 'white', fontSize: '30px' }}
+                        style={{ color: 'white' }}
                         onClick={() => cambiarIndice(indice === cursos.length - 1 ? 0 : indice + 1)}
-                        className="absolute right-0 z-10 mr-2 rounded-full p-3 text-gray-700 transition-colors hover:bg-gray-400"
+                        className="aling-center absolute right-0 z-10 mr-2 flex items-center rounded-full p-3 text-gray-700 transition-colors hover:bg-gray-400"
                         aria-label="Siguiente curso"
                     >
-                        ›
+                        <div style={{ color: 'white', fontSize: '30px', marginTop: '-3px' }}>›</div>
                     </button>
 
                     {/* Indicadores */}
@@ -127,8 +135,6 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-
-
         </>
     );
 }
