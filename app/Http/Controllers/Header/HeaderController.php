@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Home;
+namespace App\Http\Controllers\Header;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class HeaderController extends Controller
 {
 	public function index(){
 

@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Home\HomeController;
+
+use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,8 +15,8 @@ Route::middleware('guest')->group(function () {
         return Inertia::render('auth/register');
     })->name('register');
 
-    Route::get('/', function () {
-        return Inertia::render('welcome');
+    Route::get('/home', function () {
+        return Inertia::render('home/Index');
     })->name('home');
 
     Route::get('/welcome', function () {
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'index']);
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    
 
 });
 
