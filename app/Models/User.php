@@ -50,4 +50,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // En User.php
+public function student()
+{
+    return $this->hasOne(Student::class);
+}
+
 }

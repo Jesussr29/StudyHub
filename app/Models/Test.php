@@ -23,4 +23,10 @@ class Test extends Model
     {
         return $this->belongsTo(Course::class, 'course_id');
     }
+
+    public function stadistics()
+{
+    return $this->hasMany(Stadistic::class);
+}
+
 }

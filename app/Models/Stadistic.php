@@ -28,9 +28,10 @@ class Stadistic extends Model
      * Get the test that owns the statistic.
      */
     public function test()
-    {
-        return $this->belongsTo(Test::class, 'test_id');
-    }
+{
+    return $this->belongsTo(Test::class);
+}
+
 
     /**
      * Get the student that owns the statistic.
