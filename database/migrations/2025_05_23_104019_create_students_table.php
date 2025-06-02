@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->uuid();
+            $table->uuid('id')->primary();
+
             $table->foreignUuid('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignUuid('course_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('course_id')->constrained('courses')->cascadeOnDelete();
             $table->date('enrollment_date');
             $table->date('completion_date')->nullable();
-            $table->boolean('status')->default(true);
+            $table->boolean('status');
             $table->timestamps();
         });
     }
