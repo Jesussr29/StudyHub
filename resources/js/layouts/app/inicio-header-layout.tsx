@@ -1,6 +1,5 @@
 interface Props {
   user: any;
-  courses: any[];
 }
 
 import Dock from '@/components/reactBits/Dock/Dock';
@@ -8,9 +7,9 @@ import GooeyNav from '@/components/reactBits/GooeyNav/GooeyNav';
 import { faArrowRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { VscAccount, VscFolder, VscHome, VscLibrary } from 'react-icons/vsc';
+import { VscAccount, VscFolder, VscHome, VscLibrary, VscSettings } from 'react-icons/vsc';
 
-export default function MenuDesplegable() {
+export default function MenuDesplegable({ user }: Props) {
     const [menuAbierto, setMenuAbierto] = useState(false);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('inicio');
 
@@ -21,10 +20,11 @@ export default function MenuDesplegable() {
     ];
 
     const items2 = [
-        { icon: <VscHome size={18} />, label: 'Inicio', onClick: () => setCategoriaSeleccionada('') },
+        { icon: <VscHome size={18} />, label: 'Inicio', onClick: () => setCategoriaSeleccionada('inicio') },
         { icon: <VscLibrary size={18} />, label: 'Mi academia', onClick: () => setCategoriaSeleccionada('mi academia') },
         { icon: <VscFolder size={18} />, label: 'Recursos', onClick: () => setCategoriaSeleccionada('recursos') },
         { icon: <VscAccount size={18} />, label: 'Perfil', onClick: () => alert('Settings!') },
+        { icon: <VscSettings size={18} />, label: "Ajustes", onClick: () => alert("Ajustes") },
     ];
 
     useEffect(() => {
@@ -34,7 +34,12 @@ export default function MenuDesplegable() {
     const toggleMenu = () => setMenuAbierto(!menuAbierto);
 
     return (
+        
         <header className="relative bg-[#02040b] text-white shadow-md">
+            <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+            />
             <nav className="mx-auto flex w-full max-w-6xl items-center justify-between p-4">
                 {/* Izquierda: Logo */}
                 <div className="flex items-center gap-2">
@@ -313,19 +318,21 @@ export default function MenuDesplegable() {
                     )}
 
                     {/* Footer */}
-                    <div className="mt-10 flex items-center justify-between pt-6 pb-10 text-sm text-white md:pb-0">
+                    <div className="mt-10 flex items-center justify-between pt-6 pb-10 text-sm text-white md:pb-0 hidden md:flex
+">
                         <div className="flex items-center gap-1">
                             <FontAwesomeIcon icon="globe" className="text-xs" />
-                            <span>Español</span>
+                             <i className="fas fa-cog text-3xl transform transition-transform duration-300 hover:scale-110"></i>
+
+
                             <FontAwesomeIcon icon="chevron-down" className="ml-1 text-xs" />
                         </div>
-                        <div className="flex items-center gap-1 font-bold">
-                            <span>Movimiento</span>
-                            <FontAwesomeIcon icon="chevron-down" className="ml-1 text-xs" />
+                        <div className="flex flex-col items-center gap-2 font-bold">
+                            <i className="fas fa-user text-3xl transform transition-transform duration-300 hover:scale-110"></i>
                         </div>
                     </div>
 
-                    <div className="block md:hidden">
+                    <div className="flex items-center md:hidden">
                         <Dock items={items2} panelHeight={68} baseItemSize={50} magnification={70} />
                     </div>
                 </div>
