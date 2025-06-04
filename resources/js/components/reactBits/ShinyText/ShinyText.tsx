@@ -40,7 +40,6 @@ const ShinyText: React.FC<ShinyTextProps> = ({
           );
           -webkit-background-clip: text;
           background-clip: text;
-          color: rgba(255, 255, 255, 0.48);
           display: inline-block;
         }
         .text-base-style {
@@ -52,7 +51,7 @@ const ShinyText: React.FC<ShinyTextProps> = ({
       `}</style>
 
       <div
-        className={`${disabled ? "text-base-style" : "shine-animation"} ${className}`}
+        className={`${disabled ? "text-primary/60" : "shine-animation"} ${className}`}
         style={{}}
       >
         {text}

@@ -1,6 +1,7 @@
 <?php
 
-
+use App\Http\Controllers\Course\CourseController;
+use App\Http\Controllers\Courses\CoursesController;
 use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -15,11 +16,11 @@ Route::middleware('guest')->group(function () {
         return Inertia::render('auth/register');
     })->name('register');
 
-    Route::get('/home', function () {
-        return Inertia::render('home/Index');
-    })->name('home');
-
     Route::get('/welcome', function () {
+        return Inertia::render('welcome/Index');
+    })->name('welcome');
+
+    Route::get('/', function () {
         return Inertia::render('welcome/Index');
     })->name('welcome');
 });
@@ -29,11 +30,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
 
+    Route::get('/courses', function () {
+        return Inertia::render('courses/Index');
+    })->name('courses');
+
+    Route::get('/course', function () {
+        return Inertia::render('course/Index');
+    })->name('course');
+
     Route::get('/profile', [ProfileController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    
-
+    Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
+    Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
 });
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';

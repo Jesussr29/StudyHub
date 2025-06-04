@@ -312,7 +312,7 @@ const GooeyNav: React.FC<GooeyNavProps> = ({
                         {items.map((item, index) => (
                             <li
                                 key={index}
-                                className={`ease relative cursor-pointer rounded-full px-[1em] py-[0.6em] text-white shadow-[0_0_0.5px_1.5px_transparent] transition-[background-color_color_box-shadow] duration-300 ${
+                                className={`ease relative cursor-pointer rounded-full px-[1em] py-[0.6em] text-primary shadow-[0_0_0.5px_1.5px_transparent] transition-[background-color_color_box-shadow] duration-300 ${
                                     activeIndex === index ? 'active' : ''
                                 }`}
                                 onClick={(e) => {

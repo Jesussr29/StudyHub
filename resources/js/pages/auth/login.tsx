@@ -60,7 +60,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                     <form className="flex flex-col gap-6" onSubmit={submit}>
                         <div className="grid gap-6">
-                            <div className="grid gap-2">
+                            <div className="grid gap-2 text-primary/60">
                                 <Label htmlFor="email"><ShinyText text="Correo electronico" disabled={false} speed={3} className='custom-class' /></Label>
                                 <Input
                                     id="email"
@@ -77,7 +77,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             </div>
 
                             <div className="grid gap-2">
-                                <div className="flex items-center">
+                                <div className="flex items-center text-primary/60">
                                     <Label htmlFor="password"><ShinyText text="Contraseña" disabled={false} speed={3} className='custom-class' /></Label>
                                     {canResetPassword && (
                                         <TextLink href={route('password.request')} className="ml-auto text-sm" tabIndex={5}>
