@@ -35,7 +35,7 @@ export default function MenuDesplegable({ user }: Props) {
 
     return (
         
-        <header className="relative bg-[#02040b] text-white shadow-md">
+        <header className="relative text-white shadow-md">
             <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -46,7 +46,9 @@ export default function MenuDesplegable({ user }: Props) {
                     <img
                         src="https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png"
                         alt="Logo"
-                        className="h-15 w-auto"
+                        className="h-12 w-auto transition-all duration-300
+             drop-shadow-[0_0_8px_rgba(0,0,0,0.7)]
+              dark:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
                     />
                 </div>
 
@@ -73,7 +75,7 @@ export default function MenuDesplegable({ user }: Props) {
                 </div>
 
                 {/* Mitad derecha: Menú */}
-                <div className="flex w-full flex-col justify-between bg-[#0d111a] px-6 py-10 md:w-1/2">
+                <div className="flex w-full flex-col justify-between bg-white dark:bg-gray-500 px-6 py-10 md:w-1/2">
                     {/* Botones superiores */}
                     <div className="mb-10 mb-40 flex hidden flex-col items-start gap-4 md:mb-10 md:block md:flex-row">
                         <div style={{ height: '50px', position: 'relative', textAlign: 'center' }}>
@@ -100,7 +102,7 @@ export default function MenuDesplegable({ user }: Props) {
                             </h1>
 
                             {/* Progreso de aprendizaje */}
-                            <div className="rounded-lg bg-[#1a1f2b] p-4 shadow">
+                            <div className="rounded-lg bg-gray-100 p-4 shadow">
                                 <h2 className="mb-2 text-xl font-semibold">Progreso de aprendizaje</h2>
                                 <div className="h-4 w-full overflow-hidden rounded-full bg-gray-700">
                                     <div className="h-full bg-green-500" style={{ width: '72%' }}></div>
