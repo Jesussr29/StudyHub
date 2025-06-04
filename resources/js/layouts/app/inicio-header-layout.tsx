@@ -78,7 +78,7 @@ export default function MenuDesplegable() {
                     />
                 </div>
 
-                {/* Mitad derecha: Menú */}
+                {/* Mitad derecha: Menu */}
                 <div className="flex w-full flex-col justify-between bg-white px-6 py-10 md:w-1/2 dark:bg-[#0d111a]">
                     {/* Botones superiores */}
                     <div className="mb-10 hidden flex-row items-start gap-4 lg:flex">
