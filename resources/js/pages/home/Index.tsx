@@ -3,7 +3,6 @@ interface Props {
   courses: any[];
 }
 
-
 import ShinyText from '@/components/reactBits/ShinyText/ShinyText';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import AOS from 'aos';
@@ -75,7 +74,7 @@ const cursos = courses.slice(0, 3).map((curso, i) => ({
     return (
         <>
             <header className="sticky top-0 z-50">
-                <MenuDesplegable user={user}></MenuDesplegable>
+                <MenuDesplegable></MenuDesplegable>
             </header>
 
             {/* CONTENIDO */}
@@ -85,7 +84,9 @@ const cursos = courses.slice(0, 3).map((curso, i) => ({
                     <h3 className="text-3xl">
                         Hola, <span className="font-bold">{user.name}</span> ¡Elige tu siguiente reto!
                     </h3>
-                    <ShinyText text="Muchisimos cursos te estan esperando." disabled={false} speed={5} className="custom-class" />
+                    <p className="text-primary/60 mt-1">
+                        <ShinyText text="Muchisimos cursos te estan esperando." disabled={false} speed={5} className="custom-class" />
+                    </p>
                 </div>
 
                 <div className="relative mx-auto mt-10 flex w-full max-w-6xl items-center justify-center p-6 select-none">
@@ -96,7 +97,7 @@ const cursos = courses.slice(0, 3).map((curso, i) => ({
                         className="absolute left-0 z-10 ml-2 rounded-full p-3 text-gray-700 transition-colors hover:bg-gray-400"
                         aria-label="Anterior curso"
                     >
-                        <div style={{ color: 'white', fontSize: '30px', marginTop: '-3px' }}>‹</div>
+                        <div className='text-primary' style={{ fontSize: '30px', marginTop: '-3px' }}>‹</div>
                     </button>
 
                     {/* Contenido carrusel */}
@@ -120,7 +121,7 @@ const cursos = courses.slice(0, 3).map((curso, i) => ({
                         className="aling-center absolute right-0 z-10 mr-2 flex items-center rounded-full p-3 text-gray-700 transition-colors hover:bg-gray-400"
                         aria-label="Siguiente curso"
                     >
-                        <div style={{ color: 'white', fontSize: '30px', marginTop: '-3px' }}>›</div>
+                        <div className='text-primary' style={{ fontSize: '30px', marginTop: '-3px' }}>›</div>
                     </button>
 
                     {/* Indicadores */}

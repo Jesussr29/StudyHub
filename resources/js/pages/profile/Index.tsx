@@ -117,7 +117,7 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
-            <MenuDesplegable user={user} />
+            <MenuDesplegable/>
 
             <section className="mx-auto max-w-7xl px-6 pt-8 pb-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

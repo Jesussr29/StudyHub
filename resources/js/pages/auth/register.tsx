@@ -51,7 +51,7 @@ export default function Register() {
                         <Head title="Register" />
                         <form className="flex flex-col gap-6" onSubmit={submit}>
                             <div className="grid gap-6">
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 text-primary/60">
                                     <Label htmlFor="name"><ShinyText text="Nombre" disabled={false} speed={3} className='custom-class' /></Label>
                                     <Input
                                         id="name"
@@ -68,7 +68,7 @@ export default function Register() {
                                     <InputError message={errors.name} className="mt-2" />
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 text-primary/60">
                                     <Label htmlFor="email"><ShinyText text="Correo electronico" disabled={false} speed={3} className='custom-class' /></Label>
                                     <Input
                                         id="email"
@@ -84,7 +84,7 @@ export default function Register() {
                                     <InputError message={errors.email} />
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 text-primary/60">
                                     <Label htmlFor="password"><ShinyText text="Contraseña" disabled={false} speed={3} className='custom-class' /></Label>
                                     <Input
                                         id="password"
@@ -100,7 +100,7 @@ export default function Register() {
                                     <InputError message={errors.password} />
                                 </div>
 
-                                <div className="grid gap-2">
+                                <div className="grid gap-2 text-primary/60">
                                     <Label htmlFor="password_confirmation"><ShinyText text="Confirmar contraseña" disabled={false} speed={3} className='custom-class' /></Label>
                                     <Input
                                         id="password_confirmation"
