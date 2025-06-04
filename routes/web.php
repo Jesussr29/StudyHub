@@ -39,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('course/Index');
     })->name('course');
 
+    Route::get('/test', function () {
+        return Inertia::render('test/Index');
+    })->name('test');
+
     Route::get('/admin', function () {
         abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
         $controller = app(AdminController::class);

@@ -106,7 +106,7 @@ export default function Course({ course, profesor }: Props) {
                                     📄 Descargar PDF
                                 </a>
                                 <a
-                                    href="/tests/test-introduccion"
+                                    href="/test"
                                     className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
                                 >
                                     🧠 Empezar Test
