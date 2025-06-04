@@ -41,13 +41,9 @@ export default function MenuDesplegable() {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     return (
-        
-        <header className="relative bg-[#02040b] text-white shadow-md">
-            <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-            />
-            <nav className="mx-auto flex w-full max-w-6xl items-center justify-between p-4">
+        <header className="relative text-white shadow-md dark:bg-[#02040b]">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+            <nav className="mx-auto flex w-full max-w-[90%] items-center justify-between p-4">
                 {/* Izquierda: Logo */}
                 <div className="flex items-center gap-2">
                     <a href="/home">
@@ -55,6 +51,7 @@ export default function MenuDesplegable() {
                         src="https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png"
                         alt="Logo"
                         className="h-15 w-auto"
+                        
                     />
                     </a>
                 </div>
@@ -81,8 +78,8 @@ export default function MenuDesplegable() {
                     />
                 </div>
 
-                {/* Mitad derecha: Menú */}
-                <div className="flex w-full flex-col justify-between bg-[#0d111a] px-6 py-10 md:w-1/2">
+                {/* Mitad derecha: Menu */}
+                <div className="flex w-full flex-col justify-between bg-white px-6 py-10 md:w-1/2 dark:bg-[#0d111a]">
                     {/* Botones superiores */}
                     <div className="mb-10 hidden flex-row items-start gap-4 lg:flex">
                         <div style={{ height: '50px', position: 'relative', textAlign: 'center' }}>
@@ -109,7 +106,7 @@ export default function MenuDesplegable() {
                             </h1>
 
                             {/* Progreso de aprendizaje */}
-                            <div className="rounded-lg bg-[#1a1f2b] p-4 shadow">
+                            <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
                                 <h2 className="mb-2 text-xl font-semibold">Progreso de aprendizaje</h2>
                                 <div className="h-4 w-full overflow-hidden rounded-full bg-gray-700">
                                     <div className="h-full bg-green-500" style={{ width: '72%' }}></div>

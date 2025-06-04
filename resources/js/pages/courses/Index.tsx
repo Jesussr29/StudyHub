@@ -15,7 +15,6 @@ const formatearDuración = (minutos: number): string => {
   if (horas === 0) {
     return `${mins} minutos`;
   }
-
   return `${horas} horas y ${mins} minutos`;
 };
 

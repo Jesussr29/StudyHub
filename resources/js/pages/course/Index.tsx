@@ -5,7 +5,6 @@ import GoogleTranslate from '../../layouts/translate/traductor';
 
 interface Props {
     course: any;
-    profesor: any;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -21,7 +20,7 @@ const formatearDuración = (minutos: number): string => {
 
 
 
-export default function Course({ course, profesor }: Props) {
+export default function Course({ course }: Props) {
 
     
 

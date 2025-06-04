@@ -1,9 +1,9 @@
 <?php
 
-
+use App\Http\Controllers\Course\CourseController;
+use App\Http\Controllers\Courses\CoursesController;
 use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,6 +17,10 @@ Route::middleware('guest')->group(function () {
     })->name('register');
 
     Route::get('/welcome', function () {
+        return Inertia::render('welcome/Index');
+    })->name('welcome');
+
+    Route::get('/', function () {
         return Inertia::render('welcome/Index');
     })->name('welcome');
 });
@@ -36,8 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    
-
+    Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
+    Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
 });
 
 require __DIR__ . '/settings.php';

@@ -12,7 +12,6 @@ class CoursesController extends Controller
 
         $cursos = Course::all();
 
-        
         return inertia('courses/Index', [
             'user' => Auth::user(),
             'courses' => $cursos,
