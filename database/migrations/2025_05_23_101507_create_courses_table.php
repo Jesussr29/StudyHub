@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('pdf')->nullable();
             $table->foreignUuid('teacher_id')->constrained('users')->cascadeOnDelete();
+            $table->boolean('isHidden')->default(false);
             $table->timestamps();
         });
     }

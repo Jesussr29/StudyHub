@@ -16,6 +16,7 @@ class Course extends Model
         'image',
         'pdf',
         'teacher_id',
+        'isHidden',
         'created_at',
         'updated_at',
     ];
