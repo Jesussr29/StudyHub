@@ -40,17 +40,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('course');
 
     Route::get('/admin', function () {
-        abort_unless(auth()->user() && auth()->user()->rol === 'admin', 403); 
-        return Inertia::render('admin/Index');
-    })->name('admin.dashboard');
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->index();
+    })->name('admin');
+
+    Route::put('/admin/{id}/ban', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->ban($id);
+    });
+
+    Route::put('/admin/{id}/hide', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->hide($id);
+    });
 
     Route::get('/profile', [ProfileController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
-    Route::get('/admin', [AdminController::class, 'index'])->name('admin');
-    Route::put('/admin/{id}/ban', [AdminController::class, 'ban']);
-    Route::put('/admin/{id}/hide', [AdminController::class, 'hide']);
 });
 
 require __DIR__ . '/settings.php';
