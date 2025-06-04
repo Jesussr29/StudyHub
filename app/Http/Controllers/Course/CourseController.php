@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Course;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\User;
 use Inertia\Inertia;
 
 class CourseController extends Controller
@@ -11,8 +12,7 @@ class CourseController extends Controller
 	public function index($id){
 
         $curso = Course::findOrFail($id);
-        $profesor = $curso->professor;
-
+        $profesor = User::findOrFail($curso->teacher_id);
         
         return Inertia::render("course/Index", [
             'course' => $curso,
