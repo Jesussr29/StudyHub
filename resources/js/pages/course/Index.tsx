@@ -1,10 +1,9 @@
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import { Head } from '@inertiajs/react';
-import { useEffect } from 'react';
-import GoogleTranslate from '../../layouts/translate/traductor';
 
 interface Props {
     course: any;
+    profesor: any;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -18,12 +17,7 @@ const formatearDuración = (minutos: number): string => {
     return `${horas} horas y ${mins} minutos`;
 };
 
-
-
-export default function Course({ course }: Props) {
-
-    
-
+export default function Course({ course, profesor }: Props) {
     return (
         <>
             <Head title={course.name} />
@@ -68,11 +62,11 @@ export default function Course({ course }: Props) {
                             <span className="absolute right-0 bottom-0 h-5 w-5 animate-pulse rounded-full border-2 border-white bg-green-500 dark:border-[#101828]" />
                         </div>
 
-                        <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">José Domingo Muñoz</h2>
+                        <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{profesor.name}</h2>
                         <p className="mt-1 text-sm font-semibold tracking-wide text-purple-600 uppercase">Experto en Desarrollo</p>
 
                         <p className="mt-3 px-4 text-sm text-gray-700 dark:text-gray-300">
-                            Ingeniero Informático y Profesor de ASIR con más de 10 años formando en tecnología web, bases de datos y Python.
+                            {profesor.description ? profesor.description : 'El profesor aún no ha proporcionado una descripción.'}
                         </p>
 
                         <div className="mt-5 flex justify-center gap-4">

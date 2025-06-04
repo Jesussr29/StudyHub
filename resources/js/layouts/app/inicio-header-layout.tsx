@@ -332,7 +332,9 @@ export default function MenuDesplegable() {
                             </button>
                         </div>
                         <div className="text-primary flex flex-col items-center gap-2 font-bold">
-                            <i className="fas fa-user transform text-3xl transition-transform duration-300 hover:scale-110"></i>
+                            <a href="/profile">
+                                <i className="fas fa-user transform text-3xl transition-transform duration-300 hover:scale-110"></i>
+                            </a>
                         </div>
                     </div>
 
