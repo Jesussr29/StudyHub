@@ -27,6 +27,7 @@ class User extends Authenticatable
         'rol',
         'description',
         'isBanned',
+        'image',
         'created_at',
         'updated_at',
     ];

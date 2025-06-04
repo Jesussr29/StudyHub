@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('rol')->default('user'); 
             $table->string('description')->nullable(); 
             $table->boolean('isBanned')->default(true); 
+            $table->string('image')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
