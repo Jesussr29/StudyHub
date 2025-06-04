@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BienvenidaUsuario;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class AdminController extends Controller
@@ -35,6 +37,9 @@ class AdminController extends Controller
 
         $userName = $user->name;
         $status = $user->isBanned ? 'baneado' : 'desbaneado';
+        Mail::raw("Hola {$user->name}, bienvenido a la plataforma.", function ($message) use ($user) {
+    $message->to($user->email)->subject('Bienvenida');
+});
 
         return redirect()->back()->with('message', "El usuario {$userName} ha sido {$status} correctamente.");
     }
