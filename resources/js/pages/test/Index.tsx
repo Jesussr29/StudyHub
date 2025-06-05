@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 interface Props {
     course: any;
     profesor: any;
+    test: any;
 }
 
 const preguntas = [
@@ -68,7 +69,11 @@ const preguntas = [
     },
 ];
 
-export default function Test({ course, profesor }: Props) {
+export default function Test({ course, profesor, test }: Props) {
+    useEffect(() => {
+        console.log(test.name); // Solo una vez al montar
+    }, []);
+
     const [preguntaActual, setPreguntaActual] = useState(0);
     const [respuestas, setRespuestas] = useState<(number | null)[]>(Array(preguntas.length).fill(null));
     const [segundosRestantes, setSegundosRestantes] = useState(10);
@@ -83,20 +88,23 @@ export default function Test({ course, profesor }: Props) {
     }, [preguntasRespondidas, totalPreguntas]);
 
     useEffect(() => {
-        if (segundosRestantes <= 0) {
-            setTiempoTerminado(true);
-            setMostrarDialogo(true);
-
-                setTimeout(() => {
-        window.location.href = `/course/${course.id}`; // cambia esto por la ruta que quieras
-    }, 5000);
-            return;
-        }
         const intervalo = setInterval(() => {
-            setSegundosRestantes((s) => s - 1);
+            setSegundosRestantes((prev) => {
+                if (prev <= 1) {
+                    clearInterval(intervalo);
+                    setTiempoTerminado(true);
+                    setMostrarDialogo(true);
+                    setTimeout(() => {
+                        window.location.href = `/course/${course.id}`;
+                    }, 5000);
+                    return 0;
+                }
+                return prev - 1;
+            });
         }, 1000);
+
         return () => clearInterval(intervalo);
-    }, [segundosRestantes]);
+    }, []);
 
     const formatearTiempo = (s: number) => {
         const min = Math.floor(s / 60)
