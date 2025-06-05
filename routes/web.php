@@ -7,6 +7,7 @@ use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', function () {
@@ -56,6 +57,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $controller = app(AdminController::class);
         return $controller->hide($id);
     });
+
+    Route::delete('/admin/{id}/user', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->deleteUser($id);
+    });
+
+    Route::delete('/admin/{id}/course', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->deleteCourse($id);
+    });
+
+    Route::get('/admin/{id}/editUser', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->editUser($id);
+    });
+
+    Route::get('/admin/{id}/editCourse', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->editCourse($id);
+    });
+
+  Route::match(['put', 'post'], '/admin/{id}/updateUser', function (Request $request, $id) {
+    abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+    $controller = app(AdminController::class);
+    return $controller->updateUser($request, $id);
+});
 
     Route::get('/profile', [ProfileController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
