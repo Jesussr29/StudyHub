@@ -13,7 +13,7 @@ const formatearDuración = (minutos: number): string => {
 
     if (horas === 0) {
         return `${mins} minutos`;
-        
+
     }else if (horas == 1) {
         return `${horas} hora y ${mins} minutos`;
     }
@@ -119,7 +119,7 @@ export default function Course({ course, profesor, tests }: Props) {
                                             📄 Descargar PDF
                                         </a>
                                         <a
-                                            onClick={() => linkTest(course.id)}
+                                            onClick={() => linkTest(test.id)}
                                             className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
                                         >
                                             🧠 Empezar Test

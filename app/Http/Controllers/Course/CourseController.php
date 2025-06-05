@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Course;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Question;
 use App\Models\Test;
 use App\Models\User;
 use Inertia\Inertia;
@@ -28,20 +29,16 @@ class CourseController extends Controller
     }
 
     public function courseTest($id){
-        //AÑADIR ID DE TEST
+        //EL ID ES EL ID DEL TEST
 
-        $curso = Course::where("id", $id)->firstOrFail();
-        $profesor = User::findOrFail($curso->teacher_id);
-        $test = Test::where("course_id", $curso->id)->firstOrFail();
-        
+        $test = Test::where("id", $id)->firstOrFail();
+        // $questions = Question::where("test_id", $id)->get();
+        $questions = Question::all();
 
-
-        alert("hola");
         
         return Inertia::render("test/Index", [
-            'course' => $curso,
-            'profesor' => $profesor,
             'test' => $test,
+            'questions' => $questions,
         ]);
 
     }

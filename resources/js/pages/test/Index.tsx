@@ -5,78 +5,37 @@ import 'aos/dist/aos.css';
 import { useEffect, useMemo, useState } from 'react';
 
 interface Props {
-    course: any;
-    profesor: any;
     test: any;
+    questions: any[];
 }
 
-const preguntas = [
-    {
-        enunciado:
-            '¿Cuál es la capital de Francia, considerada una de las ciudades más importantes y visitadas del mundo, famosa por su historia, cultura, arquitectura icónica como la Torre Eiffel, sus museos de renombre mundial, y que además es un centro clave en la política, economía y arte de Europa?',
-        opciones: ['Madrid', 'Berlín', 'París', 'Lisboa'],
-        respuestaCorrecta: 2,
-    },
-    {
-        enunciado: '¿Qué elemento tiene el símbolo H?',
-        opciones: ['Hierro', 'Helio', 'Hidrógeno', 'Hassio'],
-        respuestaCorrecta: 2,
-    },
-    {
-        enunciado: '¿Cuál es el resultado de 5 x 3?',
-        opciones: ['15', 'mil botellines', '10', '13'],
-        respuestaCorrecta: 0,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-    {
-        enunciado: '¿Quién pintó La Última Cena?',
-        opciones: ['Miguel Ángel', 'Picasso', 'Dalí', 'Da Vinci'],
-        respuestaCorrecta: 3,
-    },
-];
+export default function Test({ test, questions }: Props) {
+    const preguntas = questions.map((question: any) => {
+    const opciones = [
+        question.option_a,
+        question.option_b,
+        question.option_c,
+        question.correct_option, // esta es la opción correcta, pero también se muestra como una opción más
+    ];
 
-export default function Test({ course, profesor, test }: Props) {
+    return {
+        enunciado: question.question_text,
+        opciones: opciones,
+        // Busca el índice de la opción correcta dentro del array
+        respuestaCorrecta: opciones.findIndex(
+            (opcion) => opcion === question.correct_option
+        ),
+    };
+});
+
+
     useEffect(() => {
         console.log(test.name); // Solo una vez al montar
     }, []);
 
     const [preguntaActual, setPreguntaActual] = useState(0);
     const [respuestas, setRespuestas] = useState<(number | null)[]>(Array(preguntas.length).fill(null));
-    const [segundosRestantes, setSegundosRestantes] = useState(10);
+    const [segundosRestantes, setSegundosRestantes] = useState(test.duration * 60);
     const [tiempoTerminado, setTiempoTerminado] = useState(false);
     const [mostrarDialogo, setMostrarDialogo] = useState(false);
 
@@ -95,7 +54,7 @@ export default function Test({ course, profesor, test }: Props) {
                     setTiempoTerminado(true);
                     setMostrarDialogo(true);
                     setTimeout(() => {
-                        window.location.href = `/course/${course.id}`;
+                        window.location.href = `/course/${test.course_id}`;
                     }, 5000);
                     return 0;
                 }
@@ -107,12 +66,19 @@ export default function Test({ course, profesor, test }: Props) {
     }, []);
 
     const formatearTiempo = (s: number) => {
-        const min = Math.floor(s / 60)
-            .toString()
-            .padStart(2, '0');
-        const seg = (s % 60).toString().padStart(2, '0');
-        return `${min}:${seg}`;
-    };
+    const horas = Math.floor(s / 3600)
+        .toString()
+        .padStart(2, "0");
+    const minutos = Math.floor((s % 3600) / 60)
+        .toString()
+        .padStart(2, "0");
+    const segundos = (s % 60).toString().padStart(2, "0");
+
+    return horas !== "00"
+        ? `${horas}:${minutos}:${segundos}`
+        : `${minutos}:${segundos}`;
+};
+
 
     const seleccionarRespuesta = (indiceRespuesta: number) => {
         if (tiempoTerminado) return;
@@ -195,7 +161,7 @@ export default function Test({ course, profesor, test }: Props) {
                 {/* Panel derecho con contador y navegación */}
                 <aside className="shadow-neumorph bg-secondary flex h-fit flex-col rounded-3xl border p-8 text-center">
                     <h3 className="t text-gradient mb-6 rounded-lg bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-3 text-2xl font-extrabold tracking-widest">
-                        Python 3 Introduccion
+                        {test.name}
                     </h3>
 
                     <div className="mb-7 text-center font-mono text-5xl font-black tracking-wide text-indigo-800 drop-shadow-lg select-none">
