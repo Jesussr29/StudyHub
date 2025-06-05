@@ -44,10 +44,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('test/Index');
     })->name('test');
 
-    Route::get('/admin', function () {
+    Route::get('/admin', function (Request $request) {
         abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
         $controller = app(AdminController::class);
-        return $controller->index();
+        return $controller->index($request);
     })->name('admin');
 
     Route::put('/admin/{id}/ban', function ($id) {
@@ -90,6 +90,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
     $controller = app(AdminController::class);
     return $controller->updateUser($request, $id);
+});
+  Route::match(['put', 'post'], '/admin/{id}/updateCourse', function (Request $request, $id) {
+    abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+    $controller = app(AdminController::class);
+    return $controller->updateCourse($request, $id);
 });
 
     Route::get('/profile', [ProfileController::class, 'index']);
