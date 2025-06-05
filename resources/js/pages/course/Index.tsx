@@ -1,5 +1,5 @@
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 interface Props {
     course: any;
@@ -15,6 +15,10 @@ const formatearDuración = (minutos: number): string => {
     }
 
     return `${horas} horas y ${mins} minutos`;
+};
+
+const linkTest = (id: number) => {
+    router.get(`/test/${id}`); 
 };
 
 export default function Course({ course, profesor }: Props) {
@@ -106,8 +110,8 @@ export default function Course({ course, profesor }: Props) {
                                     📄 Descargar PDF
                                 </a>
                                 <a
-                                    href="/test"
-                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
+                                    onClick={() => linkTest(course.id)}
+                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700 cursor-pointer"
                                 >
                                     🧠 Empezar Test
                                 </a>
@@ -130,7 +134,7 @@ export default function Course({ course, profesor }: Props) {
                                 </a>
                                 <a
                                     href="/tests/test-programacion"
-                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
+                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700 cursor-pointer"
                                 >
                                     🧠 Empezar Test
                                 </a>

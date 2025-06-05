@@ -20,4 +20,16 @@ class CourseController extends Controller
         ]);
 
     }
+
+    public function courseTest($id){
+
+        $curso = Course::findOrFail($id);
+        $profesor = User::findOrFail($curso->teacher_id);
+        
+        return Inertia::render("test/Index", [
+            'course' => $curso,
+            'profesor' => $profesor,
+        ]);
+
+    }
 }
