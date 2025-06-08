@@ -122,6 +122,19 @@ class AdminController extends Controller
         return redirect()->back()->with('message', "El curso '{$courseTitle}' ha sido eliminado correctamente.");
     }
 
+    public function createUser(){
+        return Inertia::render('admin/CreateUser');
+    }
+    public function createCourse(){
+        return Inertia::render('admin/CreateCourse');
+    }
+
+    public function storeUser(Request $request){
+        
+    }
+    public function storeCourse(Request $request){
+
+    }
 
     public function editUser($id)
     {

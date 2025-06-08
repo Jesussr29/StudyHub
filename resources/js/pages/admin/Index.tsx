@@ -1,10 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { router, usePage } from '@inertiajs/react';
-import { ArrowDownToLine, Ban, BookOpen, CheckCircle, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDownToLine, Ban, CheckCircle, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -19,40 +19,39 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { filters = {} } = usePage().props;
 
-const [tab, setTab] = useState('students');
-const [studentSearch, setStudentSearch] = useState(filters.studentSearch || '');
-const [teacherSearch, setTeacherSearch] = useState(filters.teacherSearch || '');
-const [courseSearch, setCourseSearch] = useState(filters.courseSearch || '');
+    const [tab, setTab] = useState('students');
+    const [studentSearch, setStudentSearch] = useState(filters.studentSearch || '');
+    const [teacherSearch, setTeacherSearch] = useState(filters.teacherSearch || '');
+    const [courseSearch, setCourseSearch] = useState(filters.courseSearch || '');
 
     const search = (type: string, value: string) => {
-  const params: any = {
-    studentSearch,
-    teacherSearch,
-    courseSearch,
-    tab,
-  };
-  params[type] = value;
+        const params: any = {
+            studentSearch,
+            teacherSearch,
+            courseSearch,
+            tab,
+        };
+        params[type] = value;
 
-  router.get('/admin', params, {
-    preserveScroll: true,
-    preserveState: true,
-    replace: true,
-  });
-};
-useEffect(() => {
-  const timeout = setTimeout(() => {
-    if (tab === 'students') {
-      search('studentSearch', studentSearch);
-    } else if (tab === 'teachers') {
-      search('teacherSearch', teacherSearch);
-    } else if (tab === 'courses') {
-      search('courseSearch', courseSearch);
-    }
-  }, 300); // debounce de 300ms
+        router.get('/admin', params, {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+        });
+    };
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (tab === 'students') {
+                search('studentSearch', studentSearch);
+            } else if (tab === 'teachers') {
+                search('teacherSearch', teacherSearch);
+            } else if (tab === 'courses') {
+                search('courseSearch', courseSearch);
+            }
+        }, 300); // debounce de 300ms
 
-  return () => clearTimeout(timeout);
-}, [studentSearch, teacherSearch, courseSearch, tab]);
-
+        return () => clearTimeout(timeout);
+    }, [studentSearch, teacherSearch, courseSearch, tab]);
 
     const handleBan = (id: string) => {
         if (confirm('¿Estás seguro de que deseas cambiar el estado de baneo de este usuario?')) {
@@ -145,115 +144,108 @@ useEffect(() => {
 
     const closeImageModal = () => setPreviewImage(null);
     const closeModal = () => setPreviewPdf(null);
-     
-   const renderTable = (data: any[], type: string) => {
-    if (!data || data.length === 0) {
-        return <p className="text-muted-foreground text-center">No hay datos disponibles.</p>;
-    }
 
-    const keys = Object.keys(data[0]).filter((k) => k !== 'isBanned' && k !== 'isHidden');
+    const renderTable = (data: any[], type: string) => {
+        if (!data || data.length === 0) {
+            return <p className="text-muted-foreground text-center">No hay datos disponibles.</p>;
+        }
 
-    return (
-        <div className="mt-4 overflow-x-auto rounded-lg border">
-            <table className="divide-muted bg-background min-w-full divide-y">
-                <thead className="bg-muted">
-                    <tr>
-                        {keys.map((key) => (
-                            <th key={key} className="text-muted-foreground px-4 py-2 text-left text-sm font-medium">
-                                {key}
-                            </th>
-                        ))}
-                        <th className="text-muted-foreground px-4 py-2 text-left text-sm font-medium">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-muted divide-y">
-                    {data.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-accent">
+        const keys = Object.keys(data[0]).filter((k) => k !== 'isBanned' && k !== 'isHidden');
+
+        return (
+            <div className="mt-4 overflow-x-auto rounded-lg border">
+                <table className="divide-muted bg-background min-w-full divide-y">
+                    <thead className="bg-muted">
+                        <tr>
                             {keys.map((key) => (
-                                <td key={key} className="text-foreground px-4 py-2 text-sm">
-                                    {key === 'image' ? (
-                                        item[key] && item[key].trim() !== 'null' && item[key].trim() !== '' ? (
-                                            <img
-                                                src={item[key]}
-                                                alt={`${item.name} imagen`}
-                                                className="h-10 w-10 rounded-full object-cover cursor-pointer"
-                                                onClick={() => setPreviewImage(item[key])}
-                                                title="Ver imagen ampliada"
-                                            />
-                                        ) : (
-                                            <span className="text-sm text-gray-500 italic">No hay imagen</span>
-                                        )
-                                    ) : key === 'pdf' ? (
-                                        item[key] && item[key].trim() !== 'null' && item[key].trim() !== '' ? (
-                                            <div className="flex flex-row min-w-30 justify-center space-y-1 gap-3">
-                                                <button
-                                                    onClick={() => setPreviewPdf(item[key])}
-                                                    className=" rounded transition-shadow hover:shadow-lg"
-                                                    title="Ver PDF"
-                                                    type="button"
-                                                >
-                                                    <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
-
-                                                </button>
-                                                <a
-                                                    href={item[key]}
-                                                    download
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm text-blue-600 underline"
-                                                >
-                                                    <ArrowDownToLine />
-                                                </a>
-                                            </div>
-                                        ) : (
-                                            <span className="text-sm text-gray-500 italic">No hay pdf</span>
-                                        )
-                                    ) : key.toLowerCase().includes('date') && item[key] ? (
-                                        new Date(item[key]).toLocaleDateString('es-ES', {
-                                            day: '2-digit',
-                                            month: 'short',
-                                            year: 'numeric',
-                                        })
-                                    ) : (
-                                        String(item[key] ?? '')
-                                    )}
-                                </td>
+                                <th key={key} className="text-muted-foreground px-4 py-2 text-left text-sm font-medium">
+                                    {key}
+                                </th>
                             ))}
-                            <td className="px-4 py-2">{renderActions(item, type)}</td>
+                            <th className="text-muted-foreground px-4 py-2 text-left text-sm font-medium">Acciones</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-muted divide-y">
+                        {data.map((item, idx) => (
+                            <tr key={idx} className="hover:bg-accent">
+                                {keys.map((key) => (
+                                    <td key={key} className="text-foreground px-4 py-2 text-sm">
+                                        {key === 'image' ? (
+                                            item[key] && item[key].trim() !== 'null' && item[key].trim() !== '' ? (
+                                                <img
+                                                    src={item[key]}
+                                                    alt={`${item.name} imagen`}
+                                                    className="h-10 w-10 cursor-pointer rounded-full object-cover"
+                                                    onClick={() => setPreviewImage(item[key])}
+                                                    title="Ver imagen ampliada"
+                                                />
+                                            ) : (
+                                                <span className="text-sm text-gray-500 italic">No hay imagen</span>
+                                            )
+                                        ) : key === 'pdf' ? (
+                                            item[key] && item[key].trim() !== 'null' && item[key].trim() !== '' ? (
+                                                <div className="flex min-w-30 flex-row justify-center gap-3 space-y-1">
+                                                    <button
+                                                        onClick={() => setPreviewPdf(item[key])}
+                                                        className="rounded transition-shadow hover:shadow-lg"
+                                                        title="Ver PDF"
+                                                        type="button"
+                                                    >
+                                                        <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
+                                                    </button>
+                                                    <a
+                                                        href={item[key]}
+                                                        download
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 underline"
+                                                    >
+                                                        <ArrowDownToLine />
+                                                    </a>
+                                                </div>
+                                            ) : (
+                                                <span className="text-sm text-gray-500 italic">No hay pdf</span>
+                                            )
+                                        ) : /created|updated|date/i.test(key) && item[key] ? (
+                                            (() => {
+                                                const parsedDate = new Date(item[key]);
+                                                return isNaN(parsedDate)
+                                                    ? String(item[key] ?? '')
+                                                    : parsedDate.toLocaleDateString('es-ES', {
+                                                          day: '2-digit',
+                                                          month: 'short',
+                                                          year: 'numeric',
+                                                      });
+                                            })()
+                                        ) : (
+                                            String(item[key] ?? '')
+                                        )}
+                                    </td>
+                                ))}
+                                <td className="px-4 py-2">{renderActions(item, type)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-            {previewImage && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
-                    onClick={closeImageModal}
-                >
-                    <div
-                        className="relative max-w-3xl max-h-[90vh] w-full bg-white rounded shadow-lg p-4"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            onClick={closeImageModal}
-                            className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 font-bold text-xl"
-                            title="Cerrar"
-                            type="button"
-                        >
-                            &times;
-                        </button>
-                        <img
-                            src={previewImage}
-                            alt="Imagen ampliada"
-                            className="max-w-full max-h-[80vh] object-contain rounded"
-                        />
+                {previewImage && (
+                    <div className="bg-opacity-70 fixed inset-0 z-50 flex items-center justify-center bg-black" onClick={closeImageModal}>
+                        <div className="relative max-h-[90vh] w-full max-w-3xl rounded bg-white p-4 shadow-lg" onClick={(e) => e.stopPropagation()}>
+                            <button
+                                onClick={closeImageModal}
+                                className="absolute top-2 right-2 text-xl font-bold text-gray-700 hover:text-gray-900"
+                                title="Cerrar"
+                                type="button"
+                            >
+                                &times;
+                            </button>
+                            <img src={previewImage} alt="Imagen ampliada" className="max-h-[80vh] max-w-full rounded object-contain" />
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
+                )}
+            </div>
+        );
+    };
 
     return (
         <>
@@ -279,56 +271,56 @@ useEffect(() => {
                         <TabsTrigger value="courses">Cursos</TabsTrigger>
                     </TabsList>
 
-                     <TabsContent value="students">
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-xl font-semibold">Estudiantes</h2>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={studentSearch}
-          onChange={(e) => setStudentSearch(e.target.value)}
-          placeholder="Buscar estudiante..."
-          className="rounded border px-3 py-1 text-sm"
-        />
-        <Button>Agregar Estudiante</Button>
-      </div>
-    </div>
-    {renderTable(students, 'students')}
-  </TabsContent>
+                    <TabsContent value="students">
+                        <div className="mb-2 flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Estudiantes</h2>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={studentSearch}
+                                    onChange={(e) => setStudentSearch(e.target.value)}
+                                    placeholder="Buscar estudiante..."
+                                    className="rounded border px-3 py-1 text-sm"
+                                />
+                                <Button>Agregar Estudiante</Button>
+                            </div>
+                        </div>
+                        {renderTable(students, 'students')}
+                    </TabsContent>
 
-                      <TabsContent value="teachers">
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-xl font-semibold">Profesores</h2>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={teacherSearch}
-          onChange={(e) => setTeacherSearch(e.target.value)}
-          placeholder="Buscar profesor..."
-          className="rounded border px-3 py-1 text-sm"
-        />
-        <Button>Agregar Profesor</Button>
-      </div>
-    </div>
-    {renderTable(teachers, 'teachers')}
-  </TabsContent>
+                    <TabsContent value="teachers">
+                        <div className="mb-2 flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Profesores</h2>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={teacherSearch}
+                                    onChange={(e) => setTeacherSearch(e.target.value)}
+                                    placeholder="Buscar profesor..."
+                                    className="rounded border px-3 py-1 text-sm"
+                                />
+                                <Button>Agregar Profesor</Button>
+                            </div>
+                        </div>
+                        {renderTable(teachers, 'teachers')}
+                    </TabsContent>
 
-                     <TabsContent value="courses">
-    <div className="mb-2 flex items-center justify-between">
-      <h2 className="text-xl font-semibold">Cursos</h2>
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={courseSearch}
-          onChange={(e) => setCourseSearch(e.target.value)}
-          placeholder="Buscar curso..."
-          className="rounded border px-3 py-1 text-sm"
-        />
-        <Button>Agregar Curso</Button>
-      </div>
-    </div>
-    {renderTable(courses, 'courses')}
-  </TabsContent>
+                    <TabsContent value="courses">
+                        <div className="mb-2 flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Cursos</h2>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={courseSearch}
+                                    onChange={(e) => setCourseSearch(e.target.value)}
+                                    placeholder="Buscar curso..."
+                                    className="rounded border px-3 py-1 text-sm"
+                                />
+                                <Button>Agregar Curso</Button>
+                            </div>
+                        </div>
+                        {renderTable(courses, 'courses')}
+                    </TabsContent>
                 </Tabs>
             </main>
 

@@ -1,44 +1,27 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-interface Course {
-  id: string;
-  name: string;
-  description: string;
-  duration: number;
-  image?: string;
-  pdf?: string;
-  teacher_id: string;
-  isHidden: boolean;
-}
-
 interface Teacher {
   id: string;
   name: string;
 }
 
 interface Props {
-  course: Course;
   teachers: Teacher[];
 }
 
-export default function EditCourse({ course, teachers }: Props) {
-    console.log(course,teachers)
+export default function CreateCourse({ teachers }: Props) {
   const [formData, setFormData] = useState({
-    name: course.name,
-    description: course.description,
-    duration: course.duration,
-    teacher_id: course.teacher_id,
-    isHidden: course.isHidden,
+    name: '',
+    description: '',
+    duration: 1,
+    teacher_id: teachers[0]?.id || '',
+    isHidden: false,
   });
 
-  const [imagePreview, setImagePreview] = useState(
-    course.image ? `${window.location.origin}/${course.image}` : ''
-  );
+  const [imagePreview, setImagePreview] = useState('');
   const [fileImage, setFileImage] = useState<File | null>(null);
-
   const [filePdf, setFilePdf] = useState<File | null>(null);
-  const [existingPdf, setExistingPdf] = useState(course.pdf || '');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -62,7 +45,6 @@ export default function EditCourse({ course, teachers }: Props) {
     const selected = e.target.files?.[0];
     if (selected) {
       setFilePdf(selected);
-      setExistingPdf('');
     }
   };
 
@@ -79,17 +61,14 @@ export default function EditCourse({ course, teachers }: Props) {
     if (fileImage) data.append('image', fileImage);
     if (filePdf) data.append('pdf', filePdf);
 
-    data.append('_method', 'PUT');
-
-    router.post(`/admin/${course.id}/updateCourse`, data, {
+    router.post('/admin/createCourse', data, {
       preserveScroll: true,
-     
     });
   };
 
   return (
     <section className="mx-auto mt-10 max-w-3xl rounded-xl bg-gray-100 p-8 shadow-lg dark:bg-[#101828]">
-      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">✏️ Editar Curso</h2>
+      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">📘 Crear Nuevo Curso</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
         {/* Nombre */}
@@ -163,9 +142,6 @@ export default function EditCourse({ course, teachers }: Props) {
             onChange={handleImageChange}
             className="block w-full rounded-lg border border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
           />
-          {course.image && !fileImage && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Imagen actual: <code>{course.image}</code></p>
-          )}
         </div>
 
         {/* PDF */}
@@ -177,11 +153,6 @@ export default function EditCourse({ course, teachers }: Props) {
             onChange={handlePdfChange}
             className="block w-full rounded-lg border border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
           />
-          {existingPdf && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              PDF actual: <code>{existingPdf}</code>
-            </p>
-          )}
         </div>
 
         {/* ¿Oculto? */}
@@ -202,7 +173,7 @@ export default function EditCourse({ course, teachers }: Props) {
             type="submit"
             className="rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition hover:bg-purple-700"
           >
-            💾 Guardar Cambios
+            ➕ Crear Curso
           </button>
         </div>
       </form>
