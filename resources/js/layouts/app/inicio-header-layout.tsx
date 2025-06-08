@@ -31,6 +31,7 @@ export default function MenuDesplegable() {
         { icon: <VscAccount size={18} />, label: 'Perfil', onClick: () => alert('Settings!') },
         { icon: <VscSettings size={18} />, label: 'Ajustes', onClick: () => alert('Ajustes') },
     ];
+    
 
     useEffect(() => {
         document.body.style.overflow = menuAbierto ? 'hidden' : 'auto';

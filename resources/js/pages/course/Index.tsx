@@ -2,6 +2,7 @@ import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Head, router, usePage } from '@inertiajs/react';
+import { time } from 'console';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
     tests: any[];
     user: any;
     isFavorite: boolean;
+    matriculado: boolean;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -39,7 +41,7 @@ const handleFavorite = (userId: string, courseId: string) => {
     });
 };
 
-export default function Course({ course, profesor, tests, user, isFavorite }: Props) {
+export default function Course({ course, profesor, tests, user, isFavorite, matriculado }: Props) {
     const { props } = usePage();
     const flashMessage = props.flash?.message ?? props.flash?.error ?? null;
     const flashType = props.flash?.error ? 'error' : 'success';
@@ -64,6 +66,10 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
         router.post(`/course/${id}/enrollment`, {
             preserveScroll: true,
         });
+        setTimeout(() => {
+            window.location.href = window.location.href;
+        }, 1);
+
     };
 
     return (
@@ -109,12 +115,21 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>
 
                         <div className="flex space-x-4">
-                            <button
-                                className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
-                                onClick={() => handleEnrollment(course.id)}
-                            >
-                                Comenzar
-                            </button>
+                            {!matriculado ? (
+                                <button
+                                    className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
+                                    onClick={() => handleEnrollment(course.id)}
+                                >
+                                    Matricularse
+                                </button>
+                            ) : (
+                                <button
+                                    className="cursor-pointer rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-red-700"
+                                    onClick={() => handleEnrollment(course.id)}
+                                >
+                                    Darse de baja
+                                </button>
+                            )}
                             {isFavorite ? (
                                 <button
                                     className="cursor-pointer rounded-lg border border-red-400 px-6 py-2 font-semibold text-red-400 transition duration-300 hover:bg-red-900 hover:text-white"
@@ -165,50 +180,58 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                     </div>
                 </div>
 
-                {/* Temario */}
-                <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
-                    <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
-                        📚 Temario
-                        <a href={`/${course.pdf}`} download target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
-                            <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
-                        </a>
-                    </h3>
-                    <p className="mb-6 text-gray-700 dark:text-gray-300">
-                        Aquí podrás <span className="font-semibold text-purple-600">descargarte los PDF</span> de los temas y{' '}
-                        <span className="font-semibold text-purple-600">empezar un tipo test</span> para practicar lo aprendido.
-                    </p>
-                    <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {tests.length > 0 ? (
-                            tests.map((test, index) => (
-                                <li key={test.id || index} className="flex flex-col py-6 md:flex-row md:items-center md:justify-between">
-                                    <div>
-                                        <p className="text-lg font-bold text-gray-900 dark:text-white">{test.name || 'Test sin nombre'}</p>
-                                        <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">
-                                            ⏱️ {formatearDuración(test.duration) || 'Descripción no disponible'}
-                                        </p>
-                                    </div>
-                                    <div className="mt-4 flex gap-4 md:mt-0">
-                                        <a
-                                            href={`/pdfs/${test.pdf || 'introduccion-al-curso.pdf'}`}
-                                            download
-                                            className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
-                                        >
-                                            📄 Descargar PDF
-                                        </a>
-                                        <a
-                                            onClick={() => linkTest(test.id)}
-                                            className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
-                                        >
-                                            🧠 Empezar Test
-                                        </a>
-                                    </div>
-                                </li>
-                            ))
-                        ) : (
-                            <li className="py-6 text-center text-gray-500 dark:text-gray-400">Aun no hay tests disponibles en este curso.</li>
-                        )}
-                    </ul>
-                </section>
+                {matriculado ? (
+                    <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
+                        <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+                            📚 Temario
+                            <a href={`/${course.pdf}`} download target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
+                                <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
+                            </a>
+                        </h3>
+                        <p className="mb-6 text-gray-700 dark:text-gray-300">
+                            Aquí podrás <span className="font-semibold text-purple-600">descargarte los PDF</span> de los temas y{' '}
+                            <span className="font-semibold text-purple-600">empezar un tipo test</span> para practicar lo aprendido.
+                        </p>
+                        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {tests.length > 0 ? (
+                                tests.map((test, index) => (
+                                    <li key={test.id || index} className="flex flex-col py-6 md:flex-row md:items-center md:justify-between">
+                                        <div>
+                                            <p className="text-lg font-bold text-gray-900 dark:text-white">{test.name || 'Test sin nombre'}</p>
+                                            <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">
+                                                ⏱️ {formatearDuración(test.duration) || 'Descripción no disponible'}
+                                            </p>
+                                        </div>
+                                        <div className="mt-4 flex gap-4 md:mt-0">
+                                            <a
+                                                href={`/pdfs/${test.pdf || 'introduccion-al-curso.pdf'}`}
+                                                download
+                                                className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
+                                            >
+                                                📄 Descargar PDF
+                                            </a>
+                                            <a
+                                                onClick={() => linkTest(test.id)}
+                                                className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
+                                            >
+                                                🧠 Empezar Test
+                                            </a>
+                                        </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="py-6 text-center text-gray-500 dark:text-gray-400">Aun no hay tests disponibles en este curso.</li>
+                            )}
+                        </ul>
+                    </section>
+                ) : (
+                    <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
+                        <h2 className="mb-4 text-2xl font-bold text-gray-800 dark:text-white">Acceso restringido</h2>
+                        <p className="text-gray-700 dark:text-gray-300">
+                            Debes matricularte en este curso para poder ver el temario y realizar los tests disponibles.
+                        </p>
+                    </section>
+                )}
             </main>
         </>
     );
