@@ -101,6 +101,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
+    Route::get('/test/{id}', [CourseController::class, 'courseTest'])->name('test');
 });
 
 require __DIR__ . '/settings.php';

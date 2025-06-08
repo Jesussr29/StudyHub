@@ -1,9 +1,10 @@
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 interface Props {
     course: any;
     profesor: any;
+    tests: any[];
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -12,12 +13,21 @@ const formatearDuración = (minutos: number): string => {
 
     if (horas === 0) {
         return `${mins} minutos`;
+
+    }else if (horas == 1) {
+        return `${horas} hora y ${mins} minutos`;
     }
+
+    
 
     return `${horas} horas y ${mins} minutos`;
 };
 
-export default function Course({ course, profesor }: Props) {
+const linkTest = (id: number) => {
+    router.get(`/test/${id}`);
+};
+
+export default function Course({ course, profesor, tests }: Props) {
     return (
         <>
             <Head title={course.name} />
@@ -91,51 +101,35 @@ export default function Course({ course, profesor }: Props) {
                         <span className="font-semibold text-purple-600">empezar un tipo test</span> para practicar lo aprendido.
                     </p>
                     <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {/* Tema 1 */}
-                        <li className="flex flex-col py-6 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white">INTRODUCCIÓN AL CURSO</p>
-                                <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">🎥 Presentación – 4 minutos</p>
-                            </div>
-                            <div className="mt-4 flex gap-4 md:mt-0">
-                                <a
-                                    href="/pdfs/introduccion-al-curso.pdf"
-                                    download
-                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
-                                >
-                                    📄 Descargar PDF
-                                </a>
-                                <a
-                                    href="/test"
-                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
-                                >
-                                    🧠 Empezar Test
-                                </a>
-                            </div>
-                        </li>
-
-                        {/* Tema 2 */}
-                        <li className="flex flex-col py-6 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white">INTRODUCCIÓN A LA PROGRAMACIÓN</p>
-                                <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">💻 Fundamentos – 20 minutos</p>
-                            </div>
-                            <div className="mt-4 flex gap-4 md:mt-0">
-                                <a
-                                    href="/pdfs/introduccion-a-la-programacion.pdf"
-                                    download
-                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
-                                >
-                                    📄 Descargar PDF
-                                </a>
-                                <a
-                                    href="/tests/test-programacion"
-                                    className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
-                                >
-                                    🧠 Empezar Test
-                                </a>
-                            </div>
-                        </li>
+                        {tests.length > 0 ? (
+                            tests.map((test, index) => (
+                                <li key={test.id || index} className="flex flex-col py-6 md:flex-row md:items-center md:justify-between">
+                                    <div>
+                                        <p className="text-lg font-bold text-gray-900 dark:text-white">{test.name || 'Test sin nombre'}</p>
+                                        <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">
+                                            ⏱️ {formatearDuración(test.duration) || 'Descripción no disponible'}
+                                        </p>
+                                    </div>
+                                    <div className="mt-4 flex gap-4 md:mt-0">
+                                        <a
+                                            href={`/pdfs/${test.pdf || 'introduccion-al-curso.pdf'}`}
+                                            download
+                                            className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
+                                        >
+                                            📄 Descargar PDF
+                                        </a>
+                                        <a
+                                            onClick={() => linkTest(test.id)}
+                                            className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
+                                        >
+                                            🧠 Empezar Test
+                                        </a>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="py-6 text-center text-gray-500 dark:text-gray-400">Aun no hay tests disponibles en este curso.</li>
+                        )}
                     </ul>
                 </section>
             </main>
