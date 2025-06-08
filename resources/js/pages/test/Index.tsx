@@ -1,5 +1,6 @@
 import { Dialog } from '@/components/ui/dialog';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
+import { router } from '@inertiajs/react';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
 import 'aos/dist/aos.css';
 import { useEffect, useMemo, useState } from 'react';
@@ -7,27 +8,26 @@ import { useEffect, useMemo, useState } from 'react';
 interface Props {
     test: any;
     questions: any[];
+    user: any;
 }
 
-export default function Test({ test, questions }: Props) {
-    const preguntas = questions.map((question: any) => {
-    const opciones = [
-        question.option_a,
-        question.option_b,
-        question.option_c,
-        question.correct_option, // esta es la opción correcta, pero también se muestra como una opción más
-    ];
+export default function Test({ test, questions, user }: Props) {
+    const [notaFinal, setNotaFinal] = useState<number | null>(null);
 
-    return {
-        enunciado: question.question_text,
-        opciones: opciones,
-        // Busca el índice de la opción correcta dentro del array
-        respuestaCorrecta: opciones.findIndex(
-            (opcion) => opcion === question.correct_option
-        ),
-    };
-});
+    // ESTO EVITA QUE SE CAMBIEN LAS PREGUNTAS CADA VEZ QUE SE ACTUALIZA EL COMPONENTE
+    const preguntas = useMemo(() => {
+        return questions.map((question: any) => {
+            const opcionesOriginales = [question.option_a, question.option_b, question.option_c, question.correct_option];
 
+            const opcionesMezcladas = [...opcionesOriginales].sort(() => Math.random() - 0.5);
+
+            return {
+                enunciado: question.question_text,
+                opciones: opcionesMezcladas,
+                respuestaCorrecta: opcionesMezcladas.findIndex((opcion) => opcion === question.correct_option),
+            };
+        });
+    }, [questions]);
 
     useEffect(() => {
         console.log(test.name); // Solo una vez al montar
@@ -66,19 +66,16 @@ export default function Test({ test, questions }: Props) {
     }, []);
 
     const formatearTiempo = (s: number) => {
-    const horas = Math.floor(s / 3600)
-        .toString()
-        .padStart(2, "0");
-    const minutos = Math.floor((s % 3600) / 60)
-        .toString()
-        .padStart(2, "0");
-    const segundos = (s % 60).toString().padStart(2, "0");
+        const horas = Math.floor(s / 3600)
+            .toString()
+            .padStart(2, '0');
+        const minutos = Math.floor((s % 3600) / 60)
+            .toString()
+            .padStart(2, '0');
+        const segundos = (s % 60).toString().padStart(2, '0');
 
-    return horas !== "00"
-        ? `${horas}:${minutos}:${segundos}`
-        : `${minutos}:${segundos}`;
-};
-
+        return horas !== '00' ? `${horas}:${minutos}:${segundos}` : `${minutos}:${segundos}`;
+    };
 
     const seleccionarRespuesta = (indiceRespuesta: number) => {
         if (tiempoTerminado) return;
@@ -87,9 +84,52 @@ export default function Test({ test, questions }: Props) {
         setRespuestas(nuevasRespuestas);
     };
 
+    
     const terminarTest = () => {
-        alert('Test terminado. Puedes procesar las respuestas aquí.');
-    };
+    let aciertos = 0;
+    let fallos = 0;
+    let noRespondidas = 0;
+
+    respuestas.forEach((respuesta, i) => {
+        if (respuesta === null) {
+            noRespondidas++;
+        } else if (respuesta === preguntas[i].respuestaCorrecta) {
+            aciertos++;
+        } else {
+            fallos++;
+        }
+    });
+
+    const penalización = Math.floor(fallos / 3);
+    const aciertosFinales = Math.max(aciertos - penalización, 0);
+    let is_passed = 0;
+
+    const nota = (aciertosFinales / preguntas.length) * 10;
+    setNotaFinal(nota);
+
+    // 👇 Usar FormData
+    const formData = new FormData();
+    formData.append("usuario_id", user.id);
+    formData.append("aciertos", aciertos.toString());
+    formData.append("fallos", fallos.toString());
+    formData.append("no_respondidas", noRespondidas.toString());
+    formData.append("nota", nota.toFixed(2));
+    formData.append("idCurso", test.course_id.toString());
+    formData.append("idTest", test.id.toString());
+
+    router.post("/test", formData);
+
+    alert(
+        `Test terminado.\n` +
+        `✔️ Correctas: ${aciertos}\n` +
+        `❌ Incorrectas: ${fallos}\n` +
+        `❓ No contestadas: ${noRespondidas}\n\n` +
+        `🧮 Penalización: -${penalización} aciertos\n` +
+        `📊 Nota final: ${nota.toFixed(2)}/10`
+    );
+};
+
+
 
     return (
         <>

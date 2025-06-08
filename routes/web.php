@@ -5,6 +5,7 @@ use App\Http\Controllers\Course\CourseController;
 use App\Http\Controllers\Courses\CoursesController;
 use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Test\TestController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -39,10 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/course', function () {
         return Inertia::render('course/Index');
     })->name('course');
-
-    Route::get('/test', function () {
-        return Inertia::render('test/Index');
-    })->name('test');
 
     Route::get('/admin', function (Request $request) {
         abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
@@ -102,6 +99,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
     Route::get('/test/{id}', [CourseController::class, 'courseTest'])->name('test');
+});
+
+  Route::match(['put', 'post'], '/test', function (Request $request) {
+    $controller = app(TestController::class);
+    return $controller->guardar($request);
 });
 
 require __DIR__ . '/settings.php';

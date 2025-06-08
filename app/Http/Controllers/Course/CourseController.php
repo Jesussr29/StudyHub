@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\Test;
 use App\Models\User;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 use function Laravel\Prompts\alert;
 
@@ -31,12 +32,15 @@ class CourseController extends Controller
     public function courseTest($id){
         //EL ID ES EL ID DEL TEST
 
+        
+
         $test = Test::where("id", $id)->firstOrFail();
         // $questions = Question::where("test_id", $id)->get();
         $questions = Question::all();
 
         
         return Inertia::render("test/Index", [
+            'user' => Auth::user(),
             'test' => $test,
             'questions' => $questions,
         ]);
