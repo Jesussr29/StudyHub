@@ -12,7 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
+
 
 use function Laravel\Prompts\alert;
 
@@ -27,6 +27,10 @@ class CourseController extends Controller
         $isFavorite = Favorite::where('user_id', $user->id)
         ->where('course_id', $curso->id)
         ->exists();
+        $matriculado = Student::where('user_id', $user->id)
+        ->where('course_id', $curso->id)
+        ->exists();
+        
 
         
         return Inertia::render("course/Index", [
@@ -35,6 +39,7 @@ class CourseController extends Controller
             'tests' => $tests,
             'user' => $user,
             'isFavorite' => $isFavorite,
+            'matriculado' => $matriculado,
         ]);
 
     }
@@ -57,18 +62,25 @@ class CourseController extends Controller
 
     }
 
-    public function enrollment($id){
-        $user = Auth::user();
+    public function enrollment($id)
+{
+    $user = Auth::user();
 
-    // Verifica si ya está inscrito
-    $alreadyEnrolled = Student::where('user_id', $user->id)
+    // Buscar si ya está inscrito
+    $matricula = Student::where('user_id', $user->id)
         ->where('course_id', $id)
-        ->exists();
+        ->first();
 
-    if ($alreadyEnrolled) {
-        return redirect()->back()->with('error', 'Ya estás inscrito en este curso.');
+    if ($matricula) {
+        // Ya está inscrito → lo desmatricula
+        $matricula->delete();
+
+        $url = "/course/{$id}";
+    return redirect($url)
+        ->with('message', 'Te has desmatriculado del curso correctamente.');
     }
 
+    // No está inscrito → lo matricula
     Student::create([
         'user_id' => $user->id,
         'course_id' => $id,
@@ -77,6 +89,8 @@ class CourseController extends Controller
         'status' => true,
     ]);
 
-    return redirect()->back()->with('success', 'Te has inscrito correctamente en el curso.');
-    }
+    $url = "/course/{$id}";
+    return redirect($url)
+        ->with('message', 'Te has matriculado correctamente al curso.');
+}
 }
