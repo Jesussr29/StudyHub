@@ -1,4 +1,6 @@
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
@@ -55,6 +57,12 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
         }
     }, [flashMessage]);
 
+    const handleEnrollment = (id: string) => {
+            router.post(`/course/${id}/enrollment`, {
+                preserveScroll: true,
+            });
+    };
+
     return (
         <>
             <Head title={course.name} />
@@ -73,9 +81,17 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                 <div className="mx-auto grid max-w-[95%] items-start gap-6 md:grid-cols-3">
                     {/* Card del curso */}
                     <div className="text-primary relative flex h-full flex-col justify-center overflow-hidden rounded-xl bg-gray-100 p-8 shadow-lg md:col-span-2 dark:bg-[#101828]">
-                        <div className="text-secondary absolute top-6 right-6 hidden rounded-lg bg-indigo-700 px-4 py-1 text-sm font-semibold shadow lg:block dark:text-white">
-                            🎓 Comienza tu aprendizaje
+                        <div className="flex flex-row justify-end gap-3">
+                            <div className="text-secondary top-6 right-6 hidden rounded-lg bg-indigo-700 px-4 py-1 text-sm font-semibold shadow lg:block dark:text-white">
+                                🎓 Comienza tu aprendizaje
+                            </div>
+                            {isFavorite && (
+                                <div className="">
+                                    <span className="text-xl">⭐️</span>
+                                </div>
+                            )}
                         </div>
+
                         <h1 className="mb-2 text-4xl font-bold">{course.name}</h1>
                         <div className="mb-4 flex items-center space-x-2">
                             <span className="text-xl text-yellow-400">4,5</span>
@@ -86,7 +102,9 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>
 
                         <div className="flex space-x-4">
-                            <button className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700">
+                            <button className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
+                            onClick={() => handleEnrollment( course.id)}
+                            >
                                 Comenzar
                             </button>
                             {isFavorite ? (
@@ -111,7 +129,7 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                     <div className="flex h-full flex-col items-center justify-center rounded-xl bg-[#f3f4f6] p-6 text-center shadow-lg dark:bg-[#101828]">
                         <div className="relative">
                             <img
-                                src="/img/carrousel1.jpg" // course.instructor.avatar
+                                src={`/${profesor.image}`}
                                 alt="Foto del instructor"
                                 className="h-32 w-32 rounded-full border-4 border-purple-500 object-cover shadow-md"
                             />
@@ -141,7 +159,12 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
 
                 {/* Temario */}
                 <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
-                    <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">📚 Temario</h3>
+                    <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+                        📚 Temario
+                        <a href={`/${course.pdf}`} download target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
+                            <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
+                        </a>
+                    </h3>
                     <p className="mb-6 text-gray-700 dark:text-gray-300">
                         Aquí podrás <span className="font-semibold text-purple-600">descargarte los PDF</span> de los temas y{' '}
                         <span className="font-semibold text-purple-600">empezar un tipo test</span> para practicar lo aprendido.

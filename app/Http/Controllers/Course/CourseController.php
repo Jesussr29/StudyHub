@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Favorite;
 use App\Models\Question;
+use App\Models\Student;
 use App\Models\Test;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -49,5 +51,28 @@ class CourseController extends Controller
             'questions' => $questions,
         ]);
 
+    }
+
+    public function enrollment($id){
+        $user = Auth::user();
+
+    // Verifica si ya está inscrito
+    $alreadyEnrolled = Student::where('user_id', $user->id)
+        ->where('course_id', $id)
+        ->exists();
+
+    if ($alreadyEnrolled) {
+        return redirect()->back()->with('error', 'Ya estás inscrito en este curso.');
+    }
+
+    Student::create([
+        'user_id' => $user->id,
+        'course_id' => $id,
+        'enrollment_date' => Carbon::today(),
+        'completion_date' => null,
+        'status' => true,
+    ]);
+
+    return redirect()->back()->with('success', 'Te has inscrito correctamente en el curso.');
     }
 }
