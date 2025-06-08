@@ -27,7 +27,8 @@ class DatabaseSeeder extends Seeder
             QuestionSeeder::class,
             StadisticSeeder::class,
             TestEvaluationSeeder::class,
-            FavoriteSeeder::class
+            FavoriteSeeder::class,
+            RatingSeeder::class,
         ]);
     }
 }

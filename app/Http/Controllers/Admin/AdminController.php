@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -122,19 +123,95 @@ class AdminController extends Controller
         return redirect()->back()->with('message', "El curso '{$courseTitle}' ha sido eliminado correctamente.");
     }
 
-    public function createUser(){
-        return Inertia::render('admin/CreateUser');
-    }
-    public function createCourse(){
-        return Inertia::render('admin/CreateCourse');
+    public function createUser(Request $request){
+        return Inertia::render('admin/CreateUser', [
+             'rol' => $request->rol, 
+        ]);
     }
 
-    public function storeUser(Request $request){
-        
-    }
-    public function storeCourse(Request $request){
+    public function createCourse()
+{
+    $teachers = User::where('rol', 'teacher')->get(['id', 'name']); 
+    return Inertia::render('admin/CreateCourse', [
+        'teachers' => $teachers,
+    ]);
+}
 
+
+public function storeUser(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255|unique:users',
+        'password' => 'required|string|min:8',
+        'rol' => 'required|in:teacher,student',
+        'description' => 'nullable|string',
+        'isBanned' => 'required|boolean',
+        'image' => 'nullable|image|max:2048',
+    ]);
+
+    $user = new User();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password); 
+    $user->rol = $request->rol;
+    $user->description = $request->description;
+    $user->isBanned = $request->isBanned;
+
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+
+        $pathFolder = $user->rol === 'teacher' ? 'img/Teachers' : 'img/Students';
+        $file->move(public_path($pathFolder), $filename);
+
+        $user->image = $pathFolder . '/' . $filename;
     }
+
+    $user->save();
+
+    return redirect('/admin')->with('message', "El usuario {$user->name} ha sido creado correctamente.");
+}
+
+    public function storeCourse(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255|unique:courses,name',
+        'description' => 'required|string',
+        'duration' => 'required|integer|min:1',
+        'teacher_id' => 'required|exists:users,id',
+        'isHidden' => 'required|boolean',
+        'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'pdf' => 'nullable|mimes:pdf|max:5120',
+    ]);
+
+    $course = new Course();
+    $course->name = $request->name;
+    $course->description = $request->description;
+    $course->duration = $request->duration;
+    $course->teacher_id = $request->teacher_id;
+    $course->isHidden = $request->isHidden;
+
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+        $pathFolder = 'img/Courses';
+        $image->move(public_path($pathFolder), $filename);
+        $course->image = $pathFolder . '/' . $filename;
+    }
+
+    if ($request->hasFile('pdf')) {
+        $pdf = $request->file('pdf');
+        $filename = time() . '_' . Str::random(10) . '.' . $pdf->getClientOriginalExtension();
+        $pathFolder = 'pdf/Courses';
+        $pdf->move(public_path($pathFolder), $filename);
+        $course->pdf = $pathFolder . '/' . $filename;
+    }
+
+    $course->save();
+
+    return redirect('/admin')->with('message', "El curso '{$course->name}' ha sido creado correctamente.");
+}
 
     public function editUser($id)
     {

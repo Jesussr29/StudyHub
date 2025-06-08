@@ -41,13 +41,16 @@ const handleFavorite = (userId: string, courseId: string) => {
 
 export default function Course({ course, profesor, tests, user, isFavorite }: Props) {
     const { props } = usePage();
-    const flashMessage = props.flash?.message;
+    const flashMessage = props.flash?.message ?? props.flash?.error ?? null;
+    const flashType = props.flash?.error ? 'error' : 'success';
 
-    const [message, setMessage] = useState<string | null>(flashMessage ?? null);
+    const [message, setMessage] = useState<string | null>(flashMessage);
+    const [type, setType] = useState<'success' | 'error'>(flashType);
 
     useEffect(() => {
         if (flashMessage) {
             setMessage(flashMessage);
+            setType(flashType);
 
             const timeout = setTimeout(() => {
                 setMessage(null);
@@ -55,12 +58,12 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
 
             return () => clearTimeout(timeout);
         }
-    }, [flashMessage]);
+    }, [flashMessage, flashType]);
 
     const handleEnrollment = (id: string) => {
-            router.post(`/course/${id}/enrollment`, {
-                preserveScroll: true,
-            });
+        router.post(`/course/${id}/enrollment`, {
+            preserveScroll: true,
+        });
     };
 
     return (
@@ -71,7 +74,11 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
             </header>
             {message && (
                 <div className="fixed top-4 right-4 z-50">
-                    <div className="max-w-sm rounded-xl border border-green-400 bg-green-100 px-4 py-2 text-sm text-green-800 shadow-lg">
+                    <div
+                        className={`max-w-sm rounded-xl border px-4 py-2 text-sm shadow-lg ${
+                            type === 'success' ? 'border-green-400 bg-green-100 text-green-800' : 'border-red-400 bg-red-100 text-red-800'
+                        }`}
+                    >
                         {message}
                     </div>
                 </div>
@@ -102,8 +109,9 @@ export default function Course({ course, profesor, tests, user, isFavorite }: Pr
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>
 
                         <div className="flex space-x-4">
-                            <button className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
-                            onClick={() => handleEnrollment( course.id)}
+                            <button
+                                className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
+                                onClick={() => handleEnrollment(course.id)}
                             >
                                 Comenzar
                             </button>

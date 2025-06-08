@@ -73,6 +73,6 @@ class CourseController extends Controller
         'status' => true,
     ]);
 
-    return redirect()->back()->with('success', 'Te has inscrito correctamente en el curso.');
+    return redirect()->back()->with('message', 'Te has inscrito correctamente en el curso.');
     }
 }

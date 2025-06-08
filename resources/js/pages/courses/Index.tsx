@@ -41,11 +41,19 @@ export default function Courses({ user, courses }: Props) {
                             className="border-primary cursor-pointer overflow-hidden rounded-xl border bg-white shadow-lg transition duration-300 hover:shadow-2xl dark:border-gray-600 dark:bg-[#1a1f2b]"
                             onClick={() => manejarClickCurso(curso.id)}
                         >
-                            <img
-                                src="/img/carrousel1.jpg"
-                                // alt={curso.title}
+                           {curso.image !== 'null' ? (
+                             <img
+                                src={`/${curso.image}`}
+                                alt={curso.name}
                                 className="h-40 w-full bg-gray-100 object-contain object-cover"
                             />
+                           ) : (
+                             <img
+                                src={'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'}
+                                alt={curso.name}
+                                className="h-40 w-full bg-gray-100 object-contain object-cover"
+                            />
+                           )}
                             <div className="p-4">
                                 <h2 className="text-primary text-2xl font-bold">{curso.name}</h2>
                                 <p className="text-primary/60 mt-1 text-sm">{formatearDuración(curso.duration)}</p>

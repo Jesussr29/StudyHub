@@ -4,7 +4,7 @@ import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { router, usePage } from '@inertiajs/react';
-import { ArrowDownToLine, Ban, CheckCircle, Pencil, Trash2 } from 'lucide-react';
+import { ArrowDownToLine, Ban, CheckCircle, Eye, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Props {
@@ -48,7 +48,7 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
             } else if (tab === 'courses') {
                 search('courseSearch', courseSearch);
             }
-        }, 300); // debounce de 300ms
+        }, 300); 
 
         return () => clearTimeout(timeout);
     }, [studentSearch, teacherSearch, courseSearch, tab]);
@@ -93,22 +93,46 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
         }
     };
 
-    const { props } = usePage();
-    const flashMessage = props.flash?.message;
+    const handleProfile = (id: string) => {
+        router.get(`/profile/${id}/profile`, {
+                preserveScroll: true,
+        });
+    }
 
-    const [message, setMessage] = useState<string | null>(flashMessage ?? null);
+    const handleCourse = (id: string) => {
+        router.get(`/course/${id}`, {
+                preserveScroll: true,
+        });
+    }
+    
+    const createUser = (rol: string) => {
+            router.get(`/admin/createUser`, {
+                preserveScroll: true,
+                rol,
+            });
+    };
 
-    useEffect(() => {
-        if (flashMessage) {
-            setMessage(flashMessage);
+    const createCourse = () => {
+            router.get(`/admin/createCourse`, {
+                preserveScroll: true,
+            });
+    };
 
-            const timeout = setTimeout(() => {
-                setMessage(null);
-            }, 3000);
+    const { flash } = usePage().props;
+const [message, setMessage] = useState<string | null>(null);
 
-            return () => clearTimeout(timeout);
-        }
-    }, [flashMessage]);
+useEffect(() => {
+    if (flash?.message && !message) {
+        setMessage(flash.message);
+
+        const timeout = setTimeout(() => {
+            setMessage(null);
+        }, 3000);
+
+        return () => clearTimeout(timeout);
+    }
+}, [flash?.message, message]);
+
 
     const renderActions = (item: any, type: string) => (
         <div className="flex space-x-2">
@@ -122,6 +146,9 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
                     </Button>
                     <Button variant={item.isBanned ? 'secondary' : 'outline'} size="icon" onClick={() => handleBan(item.id)}>
                         {item.isBanned ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+                    </Button>
+                    <Button size="icon" onClick={() => handleProfile(item.id)}>
+                        <Eye></Eye>
                     </Button>
                 </>
             )}
@@ -137,6 +164,9 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
                     <Button variant={item.isHidden ? 'secondary' : 'outline'} size="icon" onClick={() => handleHide(item.id)}>
                         {item.isHidden ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
                     </Button>
+                    <Button size="icon" onClick={() => handleCourse(item.id)}>
+                        <Eye></Eye>
+                    </Button>
                 </>
             )}
         </div>
@@ -146,6 +176,11 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
     const closeModal = () => setPreviewPdf(null);
 
     const renderTable = (data: any[], type: string) => {
+
+        const timeout = setTimeout(() => {
+            setMessage(null);
+        }, 3000);
+
         if (!data || data.length === 0) {
             return <p className="text-muted-foreground text-center">No hay datos disponibles.</p>;
         }
@@ -282,7 +317,7 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
                                     placeholder="Buscar estudiante..."
                                     className="rounded border px-3 py-1 text-sm"
                                 />
-                                <Button>Agregar Estudiante</Button>
+                                <Button onClick={() => createUser("student")}>Agregar Estudiante</Button>
                             </div>
                         </div>
                         {renderTable(students, 'students')}
@@ -299,7 +334,7 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
                                     placeholder="Buscar profesor..."
                                     className="rounded border px-3 py-1 text-sm"
                                 />
-                                <Button>Agregar Profesor</Button>
+                                <Button onClick={() => createUser("teacher")}>Agregar Profesor</Button>
                             </div>
                         </div>
                         {renderTable(teachers, 'teachers')}
@@ -316,7 +351,7 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
                                     placeholder="Buscar curso..."
                                     className="rounded border px-3 py-1 text-sm"
                                 />
-                                <Button>Agregar Curso</Button>
+                                <Button onClick={() => createCourse()}>Agregar Curso</Button>
                             </div>
                         </div>
                         {renderTable(courses, 'courses')}

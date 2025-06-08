@@ -2,34 +2,24 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface Props {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    rol: 'user' | 'profesor';
-    description?: string;
-    isBanned: boolean;
-    image?: string;
-  };
+  rol: string;
 }
 
-export default function EditUser({ user }: Props) {
+export default function CreateUser({ rol }: Props) {
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    rol: user.rol,
-    description: user.description || '',
-    isBanned: user.isBanned,
+    name: '',
+    email: '',
+    password: '',
+    rol: rol,
+    description: '',
+    isBanned: false,
   });
 
-  // Construye URL completa para la imagen si existe
-  const initialImageUrl = user.image ? `${window.location.origin}/${user.image}` : '';
-
-  const [imagePreview, setImagePreview] = useState(initialImageUrl);
+  const [imagePreview, setImagePreview] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -52,6 +42,7 @@ export default function EditUser({ user }: Props) {
     const data = new FormData();
     data.append('name', formData.name);
     data.append('email', formData.email);
+    data.append('password', formData.password);
     data.append('rol', formData.rol);
     data.append('description', formData.description);
     data.append('isBanned', formData.isBanned ? '1' : '0');
@@ -60,17 +51,16 @@ export default function EditUser({ user }: Props) {
       data.append('image', file);
     }
 
-    data.append('_method', 'PUT');
-
-    router.post(`/admin/${user.id}/updateUser`, data, {
+    router.post('/admin/storeUser', data, {
       preserveScroll: true,
-      
     });
   };
 
   return (
     <section className="mx-auto mt-10 max-w-3xl rounded-xl bg-gray-100 p-8 shadow-lg dark:bg-[#101828]">
-      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">✏️ Editar Usuario</h2>
+      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
+        ➕ Crear {rol === 'student' ? 'Estudiante' : 'Profesor'}
+      </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
         {/* Nombre */}
@@ -99,19 +89,17 @@ export default function EditUser({ user }: Props) {
           />
         </div>
 
-        {/* Rol */}
+        {/* Password */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Rol</label>
-          <select
-            name="rol"
-            value={formData.rol}
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Contraseña</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
-            disabled
-          >
-            <option value="student">Estudiante</option>
-            <option value="teacher">Profesor</option>
-          </select>
+            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            required
+          />
         </div>
 
         {/* Descripción */}
@@ -137,20 +125,12 @@ export default function EditUser({ user }: Props) {
             />
           )}
 
-          {/* NOTA: input type file NO puede tener value por seguridad */}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
             className="block w-full rounded-lg border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
-
-          {/* Mostrar la ruta de la imagen actual (opcional) */}
-          {user.image && !file && (
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Imagen actual: <code>{user.image}</code>
-            </p>
-          )}
         </div>
 
         {/* ¿Baneado? */}
@@ -171,7 +151,7 @@ export default function EditUser({ user }: Props) {
             type="submit"
             className="rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition hover:bg-purple-700"
           >
-            💾 Guardar Cambios
+            Crear {rol === 'student' ? 'Estudiante' : 'Profesor'}
           </button>
         </div>
       </form>

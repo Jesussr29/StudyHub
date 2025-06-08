@@ -61,7 +61,7 @@ export default function CreateCourse({ teachers }: Props) {
     if (fileImage) data.append('image', fileImage);
     if (filePdf) data.append('pdf', filePdf);
 
-    router.post('/admin/createCourse', data, {
+    router.post('/admin/storeCourse', data, {
       preserveScroll: true,
     });
   };

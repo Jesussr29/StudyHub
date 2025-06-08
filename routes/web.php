@@ -100,14 +100,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     Route::get('/profile', [ProfileController::class, 'index']);
+    Route::get('/profile/{id}/profile', [ProfileController::class, 'profileAdmin']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
     Route::post('/course/{id}/enrollment', [CourseController::class, 'enrollment'])->name('enrollment');
     Route::get('/test/{id}', [CourseController::class, 'courseTest'])->name('test');
     Route::post('/favorite', [FavoriteController::class, 'favorite'])->name('favorite');
-    Route::post('/admin/createCourse', [AdminController::class, 'createCourse'])->name('createCourse');
-    Route::post('/admin/createUser', [AdminController::class, 'createUser'])->name('createUser');
+    Route::get('/admin/createCourse', [AdminController::class, 'createCourse'])->name('createCourse');
+    Route::get('/admin/createUser', [AdminController::class, 'createUser'])->name('createUser');
     Route::post('/admin/storeCourse', [AdminController::class, 'storeCourse'])->name('storeCourse');
     Route::post('/admin/storeUser', [AdminController::class, 'storeUser'])->name('storeUser');
 });
