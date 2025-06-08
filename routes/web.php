@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Course\CourseController;
 use App\Http\Controllers\Courses\CoursesController;
+use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     $controller = app(AdminController::class);
     return $controller->updateUser($request, $id);
 });
+
   Route::match(['put', 'post'], '/admin/{id}/updateCourse', function (Request $request, $id) {
     abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
     $controller = app(AdminController::class);
@@ -102,6 +104,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
     Route::get('/test/{id}', [CourseController::class, 'courseTest'])->name('test');
+    Route::post('/favorite', [FavoriteController::class, 'favorite'])->name('favorite');
 });
 
 require __DIR__ . '/settings.php';

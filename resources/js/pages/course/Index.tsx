@@ -1,10 +1,13 @@
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 interface Props {
     course: any;
     profesor: any;
     tests: any[];
+    user: any;
+    isFavorite: boolean;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -13,12 +16,9 @@ const formatearDuración = (minutos: number): string => {
 
     if (horas === 0) {
         return `${mins} minutos`;
-
-    }else if (horas == 1) {
+    } else if (horas == 1) {
         return `${horas} hora y ${mins} minutos`;
     }
-
-    
 
     return `${horas} horas y ${mins} minutos`;
 };
@@ -27,13 +27,47 @@ const linkTest = (id: number) => {
     router.get(`/test/${id}`);
 };
 
-export default function Course({ course, profesor, tests }: Props) {
+const handleFavorite = (userId: string, courseId: string) => {
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('course_id', courseId);
+
+    router.post('/favorite', formData, {
+        preserveScroll: true,
+    });
+};
+
+export default function Course({ course, profesor, tests, user, isFavorite }: Props) {
+    const { props } = usePage();
+    const flashMessage = props.flash?.message;
+
+    const [message, setMessage] = useState<string | null>(flashMessage ?? null);
+
+    useEffect(() => {
+        if (flashMessage) {
+            setMessage(flashMessage);
+
+            const timeout = setTimeout(() => {
+                setMessage(null);
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [flashMessage]);
+
     return (
         <>
             <Head title={course.name} />
             <header className="bg-secondary sticky top-0 z-50 shadow">
                 <MenuDesplegable />
             </header>
+            {message && (
+                <div className="fixed top-4 right-4 z-50">
+                    <div className="max-w-sm rounded-xl border border-green-400 bg-green-100 px-4 py-2 text-sm text-green-800 shadow-lg">
+                        {message}
+                    </div>
+                </div>
+            )}
 
             <main className="dark:bg-secondary min-h-screen bg-white from-white to-gray-100 p-6">
                 <div className="mx-auto grid max-w-[95%] items-start gap-6 md:grid-cols-3">
@@ -55,9 +89,21 @@ export default function Course({ course, profesor, tests }: Props) {
                             <button className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700">
                                 Comenzar
                             </button>
-                            <button className="cursor-pointer rounded-lg border border-purple-400 px-6 py-2 font-semibold text-purple-400 transition duration-300 hover:bg-purple-900 hover:text-white">
-                                Añadir a favoritos
-                            </button>
+                            {isFavorite ? (
+                                <button
+                                    className="cursor-pointer rounded-lg border border-red-400 px-6 py-2 font-semibold text-red-400 transition duration-300 hover:bg-red-900 hover:text-white"
+                                    onClick={() => handleFavorite(user.id, course.id)}
+                                >
+                                    Quitar de favoritos
+                                </button>
+                            ) : (
+                                <button
+                                    className="cursor-pointer rounded-lg border border-purple-400 px-6 py-2 font-semibold text-purple-400 transition duration-300 hover:bg-purple-900 hover:text-white"
+                                    onClick={() => handleFavorite(user.id, course.id)}
+                                >
+                                    Añadir a favoritos
+                                </button>
+                            )}
                         </div>
                     </div>
 

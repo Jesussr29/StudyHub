@@ -19,7 +19,7 @@ interface Teacher {
 
 interface Props {
   course: Course;
-  teachers: Teacher[]; // para mostrar en el select
+  teachers: Teacher[];
 }
 
 export default function EditCourse({ course, teachers }: Props) {

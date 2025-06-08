@@ -60,5 +60,10 @@ public function student()
 {
     return $this->hasOne(Student::class);
 }
+public function favorites()
+{
+    return $this->belongsToMany(Course::class, 'favorites');
+}
 
 }
+
