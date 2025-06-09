@@ -13,7 +13,6 @@ class FavoriteController extends Controller
     public function favorite(Request $request)
     {
 
-
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'course_id' => 'required|exists:courses,id',

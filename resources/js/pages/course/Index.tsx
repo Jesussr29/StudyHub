@@ -1,9 +1,11 @@
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Head, router, usePage } from '@inertiajs/react';
-import { time } from 'console';
 import { useEffect, useState } from 'react';
+
+import { Star } from 'lucide-react';
 
 interface Props {
     course: any;
@@ -12,6 +14,8 @@ interface Props {
     user: any;
     isFavorite: boolean;
     matriculado: boolean;
+    rating: any;
+    courseRating: any;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -41,10 +45,13 @@ const handleFavorite = (userId: string, courseId: string) => {
     });
 };
 
-export default function Course({ course, profesor, tests, user, isFavorite, matriculado }: Props) {
+export default function Course({ course, profesor, tests, user, isFavorite, matriculado, rating, courseRating }: Props) {
     const { props } = usePage();
     const flashMessage = props.flash?.message ?? props.flash?.error ?? null;
     const flashType = props.flash?.error ? 'error' : 'success';
+    const [open, setOpen] = useState(false);
+    const [hover, setHover] = useState(0);
+    const [userRating, setUserRating] = useState(rating);
 
     const [message, setMessage] = useState<string | null>(flashMessage);
     const [type, setType] = useState<'success' | 'error'>(flashType);
@@ -69,8 +76,18 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         setTimeout(() => {
             window.location.href = window.location.href;
         }, 1);
-
     };
+
+    const handleRating = (courseId: string) => {
+        let rating = userRating;
+        router.post(`/rating`, {
+            preserveScroll: true,
+            courseId,
+            rating
+        });
+    }
+
+    console.log(rating);
 
     return (
         <>
@@ -107,9 +124,63 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
 
                         <h1 className="mb-2 text-4xl font-bold">{course.name}</h1>
                         <div className="mb-4 flex items-center space-x-2">
-                            <span className="text-xl text-yellow-400">4,5</span>
+                            <span className="text-xl text-yellow-400">{courseRating.media}</span>
                             <span>⭐️⭐️⭐️⭐️⭐️</span>
-                            <span className="text-primary/80 text-sm">(3066 valoraciones)</span>
+                            <span className="text-primary/80 text-sm">({courseRating.total})</span>
+
+                            {matriculado && (
+                                <Dialog open={open} onOpenChange={setOpen}>
+                                    <DialogTrigger asChild>
+                                        <button className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 px-5 py-2.5 text-white shadow-lg transition-transform hover:scale-105 hover:shadow-xl active:scale-95">
+                                            ⭐ Valorar
+                                        </button>
+                                    </DialogTrigger>
+
+                                    <DialogContent className="rounded-2xl border border-pink-200 bg-white shadow-2xl sm:max-w-md dark:bg-[#101828]">
+                                        <DialogHeader>
+                                            <DialogTitle className="text-center text-2xl font-bold text-pink-700">
+                                                ¿Cómo valorarías este curso?
+                                            </DialogTitle>
+                                        </DialogHeader>
+
+                                        <div className="flex justify-center gap-3 py-6">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    size={36}
+                                                    className={`cursor-pointer transition-all duration-150 ${
+                                                        (hover || userRating) >= star ? 'scale-110 text-yellow-400 drop-shadow-md' : 'text-gray-300'
+                                                    }`}
+                                                    onClick={() => setUserRating(star)}
+                                                    onMouseEnter={() => setHover(star)}
+                                                    onMouseLeave={() => setHover(0)}
+                                                    fill={(hover || userRating) >= star ? '#facc15' : 'none'}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <DialogFooter className="flex justify-end gap-3">
+                                            <button
+                                                onClick={() => setOpen(false)}
+                                                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-100"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    handleRating(course.id);
+                                                }}
+                                                disabled={userRating === 0}
+                                                className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md transition ${
+                                                    userRating > 0 ? 'bg-pink-600 hover:bg-pink-700' : 'cursor-not-allowed bg-pink-300'
+                                                }`}
+                                            >
+                                                Enviar
+                                            </button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
                         </div>
                         <p className="text-primary/80 mb-6">{course.description}</p>
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>

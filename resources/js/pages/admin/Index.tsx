@@ -6,15 +6,55 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { router, usePage } from '@inertiajs/react';
 import { ArrowDownToLine, Ban, CheckCircle, Eye, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Area, AreaChart, Bar, BarChart, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+interface Favorite {
+    course_id: string;
+    total_favorites: number;
+}
+
+interface RatedCourse {
+    course_id: string;
+    avg_rating: number;
+    total_ratings: number;
+}
+
+interface TopStudent {
+    user_id: string;
+    avg_score: number;
+    tests_taken: number;
+}
+
+interface TestStats {
+    test_id: string;
+    total_evaluations?: number;
+    avg_score?: number;
+    pass_rate?: number;
+}
 
 interface Props {
     user: any;
     students: any[];
     teachers: any[];
     courses: any[];
+    favoritos: Favorite[];
+    mejoresValorados: RatedCourse[];
+    mejoresEstudiantes: TopStudent[];
+    testsMasRealizados: TestStats[];
+    testsDificilesFaciles: TestStats[];
 }
 
-export default function AdminIndex({ user, students, teachers, courses }: Props) {
+export default function AdminIndex({
+    user,
+    students,
+    teachers,
+    courses,
+    favoritos,
+    mejoresValorados,
+    mejoresEstudiantes,
+    testsDificilesFaciles,
+    testsMasRealizados,
+}: Props) {
     const [previewPdf, setPreviewPdf] = useState<string | null>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { filters = {} } = usePage().props;
@@ -48,7 +88,7 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
             } else if (tab === 'courses') {
                 search('courseSearch', courseSearch);
             }
-        }, 300); 
+        }, 300);
 
         return () => clearTimeout(timeout);
     }, [studentSearch, teacherSearch, courseSearch, tab]);
@@ -95,44 +135,43 @@ export default function AdminIndex({ user, students, teachers, courses }: Props)
 
     const handleProfile = (id: string) => {
         router.get(`/profile/${id}/profile`, {
-                preserveScroll: true,
+            preserveScroll: true,
         });
-    }
+    };
 
     const handleCourse = (id: string) => {
         router.get(`/course/${id}`, {
-                preserveScroll: true,
+            preserveScroll: true,
         });
-    }
-    
+    };
+
     const createUser = (rol: string) => {
-            router.get(`/admin/createUser`, {
-                preserveScroll: true,
-                rol,
-            });
+        router.get(`/admin/createUser`, {
+            preserveScroll: true,
+            rol,
+        });
     };
 
     const createCourse = () => {
-            router.get(`/admin/createCourse`, {
-                preserveScroll: true,
-            });
+        router.get(`/admin/createCourse`, {
+            preserveScroll: true,
+        });
     };
 
     const { flash } = usePage().props;
-const [message, setMessage] = useState<string | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
 
-useEffect(() => {
-    if (flash?.message && !message) {
-        setMessage(flash.message);
+    useEffect(() => {
+        if (flash?.message && !message) {
+            setMessage(flash.message);
 
-        const timeout = setTimeout(() => {
-            setMessage(null);
-        }, 3000);
+            const timeout = setTimeout(() => {
+                setMessage(null);
+            }, 3000);
 
-        return () => clearTimeout(timeout);
-    }
-}, [flash?.message, message]);
-
+            return () => clearTimeout(timeout);
+        }
+    }, [flash?.message, message]);
 
     const renderActions = (item: any, type: string) => (
         <div className="flex space-x-2">
@@ -174,9 +213,9 @@ useEffect(() => {
 
     const closeImageModal = () => setPreviewImage(null);
     const closeModal = () => setPreviewPdf(null);
+    console.log(mejoresEstudiantes);
 
     const renderTable = (data: any[], type: string) => {
-
         const timeout = setTimeout(() => {
             setMessage(null);
         }, 3000);
@@ -282,6 +321,9 @@ useEffect(() => {
         );
     };
 
+    const getCourseName = (id: string) => courses.find((c) => c.id === id)?.name || id;
+    const getStudentName = (id: string) => students.find((s) => s.id === id)?.name || id;
+    const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#8dd1e1', '#a4de6c', '#d0ed57', '#ffbb28', '#d88884', '#83a6ed'];
     return (
         <>
             <header className="bg-secondary sticky top-0 z-50 shadow">
@@ -300,10 +342,11 @@ useEffect(() => {
                 <h1 className="mb-6 text-3xl font-bold">Panel de Administración</h1>
 
                 <Tabs defaultValue="students" className="w-full">
-                    <TabsList className="mb-4 grid w-full grid-cols-3">
+                    <TabsList className="mb-4 grid w-full grid-cols-4">
                         <TabsTrigger value="students">Estudiantes</TabsTrigger>
                         <TabsTrigger value="teachers">Profesores</TabsTrigger>
                         <TabsTrigger value="courses">Cursos</TabsTrigger>
+                        <TabsTrigger value="stats">Estadísticas</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="students">
@@ -317,7 +360,7 @@ useEffect(() => {
                                     placeholder="Buscar estudiante..."
                                     className="rounded border px-3 py-1 text-sm"
                                 />
-                                <Button onClick={() => createUser("student")}>Agregar Estudiante</Button>
+                                <Button onClick={() => createUser('student')}>Agregar Estudiante</Button>
                             </div>
                         </div>
                         {renderTable(students, 'students')}
@@ -334,7 +377,7 @@ useEffect(() => {
                                     placeholder="Buscar profesor..."
                                     className="rounded border px-3 py-1 text-sm"
                                 />
-                                <Button onClick={() => createUser("teacher")}>Agregar Profesor</Button>
+                                <Button onClick={() => createUser('teacher')}>Agregar Profesor</Button>
                             </div>
                         </div>
                         {renderTable(teachers, 'teachers')}
@@ -355,6 +398,171 @@ useEffect(() => {
                             </div>
                         </div>
                         {renderTable(courses, 'courses')}
+                    </TabsContent>
+                    <TabsContent value="stats">
+                        <div className="grid gap-6 p-6 md:grid-cols-2">
+                            {/* 1. Cursos más queridos (favoritos) */}
+                            <section className="bg-background rounded-xl border p-4 shadow">
+                                <h2 className="mb-2 text-xl font-semibold">Cursos más queridos (Favoritos)</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <PieChart>
+                                        <Pie
+                                            data={favoritos}
+                                            dataKey="total_favorites"
+                                            nameKey="course_id"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            label={({ index }) => getCourseName(favoritos[index].course_id)}
+                                        >
+                                            {favoritos.map((_, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            content={({ payload }) => {
+                                                if (!payload || !payload.length) return null;
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div className="bg-secondary rounded p-2 text-white shadow">
+                                                        <strong>{getCourseName(data.course_id)}</strong>
+                                                        <div>{data.total_favorites} favoritos</div>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </section>
+
+                            {/* 2. Cursos mejor valorados */}
+                            <section className="bg-background rounded-xl border p-4 shadow">
+                                <h2 className="mb-2 text-xl font-semibold">Cursos mejor valorados</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart data={mejoresValorados}>
+                                        <XAxis dataKey="course_id" tickFormatter={getCourseName} />
+                                        <YAxis domain={[0, 5]} />
+                                        <Tooltip
+                                            content={({ payload, label }) => {
+                                                if (!payload || !payload.length) return null;
+
+                                                let avgRating = '-';
+                                                let totalRatings = '-';
+
+                                                payload.forEach((item) => {
+                                                    if (item.dataKey === 'avg_rating') {
+                                                        const val = Number(item.value);
+                                                        avgRating = isNaN(val) ? '-' : val.toFixed(1);
+                                                    }
+                                                    if (item.dataKey === 'total_ratings') {
+                                                        const val = Number(item.value);
+                                                        totalRatings = isNaN(val) ? '-' : val;
+                                                    }
+                                                });
+
+                                                return (
+                                                    <div className="bg-secondary rounded p-2 text-white shadow">
+                                                        <strong>{getCourseName(label)}</strong>
+                                                        <div>Media: {avgRating}</div>
+                                                        <div>Valoraciones: {totalRatings}</div>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Bar dataKey="avg_rating" fill="#82ca9d" name="Media Rating" />
+                                        <Bar dataKey="total_ratings" fill="#8884d8" name="Número de valoraciones" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </section>
+                            {/* 3. Estudiantes con mejores estadísticas */}
+                            <section className="bg-background rounded-xl border p-4 shadow">
+                                <h2 className="mb-2 text-xl font-semibold">Estudiantes con mejores estadísticas</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <BarChart data={mejoresEstudiantes} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                        <XAxis dataKey="student.user.name" interval={0} angle={-35} textAnchor="end" height={60} />
+                                        <YAxis domain={[0, 10]} />
+                                        <Tooltip
+                                            content={({ payload }) => {
+                                                if (!payload || !payload.length) return null;
+                                                const data = payload[0].payload;
+                                                const avgScoreNum = Number(data.avg_score);
+                                                const avgScore = isNaN(avgScoreNum) ? '-' : avgScoreNum.toFixed(2);
+                                                return (
+                                                    <div className="bg-secondary rounded p-2 text-white shadow">
+                                                        <strong>{data.student.user.name}</strong>
+                                                        <div>Puntuación media: {avgScore}</div>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                        <Bar dataKey="avg_score" fill="#8884d8" name="Puntuación media" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </section>
+
+                            {/* 4. Tests más realizados */}
+                            <section className="bg-background rounded-xl border p-4 shadow">
+                                <h2 className="mb-2 text-xl font-semibold">Tests más realizados</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <AreaChart data={testsMasRealizados} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                        <XAxis dataKey="test.name" />
+                                        <YAxis />
+                                        <Tooltip
+                                            content={({ payload }) => {
+                                                if (!payload || !payload.length) return null;
+                                                const data = payload[0].payload;
+                                                const totalEvaluations = typeof data.total_evaluations === 'number' ? data.total_evaluations : '-';
+                                                return (
+                                                    <div className="bg-secondary rounded p-2 text-white shadow">
+                                                        <strong>Test: {data.test.name}</strong>
+                                                        <div>Evaluaciones: {totalEvaluations}</div>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                        <Area type="monotone" dataKey="total_evaluations" stroke="#8884d8" fill="#8884d8" />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </section>
+
+                            {/* 5. Tests difíciles y fáciles */}
+                            <section className="bg-background rounded-xl border p-4 shadow md:col-span-2">
+                                <h2 className="mb-2 text-xl font-semibold">Tests más difíciles y fáciles</h2>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={testsDificilesFaciles}>
+                                        <XAxis dataKey="test.name" interval={0} angle={-35} textAnchor="end" height={60} />
+                                        <YAxis />
+                                        <Tooltip
+                                            content={({ payload }) => {
+                                                if (!payload || !payload.length) return null;
+                                                const data = payload[0].payload;
+
+                                                const avgScoreNum = Number(data.avg_score);
+                                                const avgScore = isNaN(avgScoreNum) ? '-' : avgScoreNum.toFixed(2);
+
+                                                const totalPassed = data.total_passed ?? '-';
+                                                const totalFailed = data.total_failed ?? '-';
+
+                                                return (
+                                                    <div className="bg-secondary rounded p-2 text-white shadow">
+                                                        <strong>Test: {data.test?.name || data.test_id}</strong>
+                                                        <div>Puntuación media: {avgScore}</div>
+                                                        <div>Aprobados: {totalPassed}</div>
+                                                        <div>Suspensos: {totalFailed}</div>
+                                                    </div>
+                                                );
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Line type="monotone" dataKey="avg_score" stroke="#FF8042" name="Puntuación media" />
+                                        <Line type="monotone" dataKey="total_passed" stroke="#28a745" name="Total aprobados" />
+                                        <Line type="monotone" dataKey="total_failed" stroke="#dc3545" name="Total suspensos" />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </section>
+                        </div>
                     </TabsContent>
                 </Tabs>
             </main>

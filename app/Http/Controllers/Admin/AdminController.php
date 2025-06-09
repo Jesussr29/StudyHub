@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\BienvenidaUsuario;
 use App\Models\Course;
+use App\Models\Favorite;
+use App\Models\Rating;
+use App\Models\TestEvaluation;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -42,17 +46,69 @@ class AdminController extends Controller
         ->get();
 
     $courses = Course::query()
-        ->when($courseSearch, callback: function ($query, $search) {
+        ->when($courseSearch, function ($query, $search) {
             $query->where('name', 'like', '%' . $search . '%')
                   ->orWhere('description', 'like', '%' . $search . '%');
         })
         ->get();
 
+    $favoritos = Favorite::select('course_id')
+        ->with('course:id,name') // Relación 'course' con solo id y name
+        ->selectRaw('count(*) as total_favorites')
+        ->groupBy('course_id')
+        ->orderByDesc('total_favorites')
+        ->limit(10)
+        ->get();
+
+    // 2. Cursos mejor valorados (media rating) con info del curso
+    $mejoresValorados = Rating::select('course_id')
+        ->with('course:id,name')
+        ->selectRaw('avg(rating) as avg_rating, count(*) as total_ratings')
+        ->groupBy('course_id')
+        ->orderByDesc('avg_rating')
+        ->limit(10)
+        ->get();
+
+    // 3. Estudiantes con mejores estadísticas (promedio scores y tests tomados) con usuario
+    $mejoresEstudiantes = TestEvaluation::with('student.user:id,name')
+        ->select('student_id')
+        ->selectRaw('avg(score) as avg_score, count(id) as tests_taken')
+        ->groupBy('student_id')
+        ->orderByDesc('avg_score')
+        ->limit(10)
+        ->get();
+
+    // 4. Tests más realizados con info del test
+    $testsMasRealizados = TestEvaluation::select('test_id')
+        ->with('test:id,name')
+        ->selectRaw('count(*) as total_evaluations')
+        ->groupBy('test_id')
+        ->orderByDesc('total_evaluations')
+        ->limit(10)
+        ->get();
+
+    // 5. Tests más difíciles y fáciles (promedio score y tasa de aprobación)
+    $testsDificilesFaciles = TestEvaluation::select('test_id')
+    ->with('test:id,name')
+    ->selectRaw('
+        avg(score) as avg_score,
+        sum(case when is_passed = 1 then 1 else 0 end) as total_passed,
+        sum(case when is_passed = 0 then 1 else 0 end) as total_failed
+    ')
+    ->groupBy('test_id')
+    ->orderBy('avg_score')
+    ->limit(10)
+    ->get();
     return Inertia::render('admin/Index', [
         'user' => Auth::user(),
         'students' => $students,
         'teachers' => $teachers,
         'courses' => $courses,
+        'favoritos' => $favoritos,
+        'mejoresValorados' => $mejoresValorados,
+        'mejoresEstudiantes' => $mejoresEstudiantes,
+        'testsMasRealizados' => $testsMasRealizados,
+        'testsDificilesFaciles' => $testsDificilesFaciles,
         'filters' => [
             'studentSearch' => $studentSearch,
             'teacherSearch' => $teacherSearch,
@@ -61,6 +117,7 @@ class AdminController extends Controller
         ],
     ]);
 }
+
 
     public function ban($id)
     {

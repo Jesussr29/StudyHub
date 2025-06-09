@@ -6,6 +6,7 @@ use App\Http\Controllers\Courses\CoursesController;
 use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
+use App\Http\Controllers\Rating\RatingController;
 use App\Http\Controllers\Test\TestController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -108,6 +109,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/createUser', [AdminController::class, 'createUser'])->name('createUser');
     Route::post('/admin/storeCourse', [AdminController::class, 'storeCourse'])->name('storeCourse');
     Route::post('/admin/storeUser', [AdminController::class, 'storeUser'])->name('storeUser');
+    Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
 });
 
   Route::match(['put', 'post'], '/test', function (Request $request) {

@@ -178,7 +178,7 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
                                                 onClick={() => abrirDialogo(curso)}
                                                 className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
                                                 style={{
-                                                    backgroundImage: `url(${curso.image || '/placeholder.jpg'})`,
+                                                    backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
                                                     backgroundSize: 'cover',
                                                     backgroundPosition: 'center',
                                                 }}
@@ -215,7 +215,7 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
                                                 onClick={() => abrirDialogo(curso)}
                                                 className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
                                                 style={{
-                                                    backgroundImage: `url(${curso.image || '/placeholder.jpg'})`,
+                                                    backgroundImage: `url(/${curso.image})`,
                                                     backgroundSize: 'cover',
                                                     backgroundPosition: 'center',
                                                 }}
