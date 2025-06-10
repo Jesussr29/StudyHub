@@ -467,6 +467,9 @@ export default function MenuDesplegable() {
                     background: none !important;
                     }
 
+                    .VIpgJd-ZVi9od-aZ2wEe-wOHMyf{
+                    display: none !important;
+                    }
 
                 `}
                 </style>
