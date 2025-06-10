@@ -83,9 +83,9 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         router.post(`/rating`, {
             preserveScroll: true,
             courseId,
-            rating
+            rating,
         });
-    }
+    };
 
     console.log(rating);
 
@@ -125,8 +125,33 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                         <h1 className="mb-2 text-4xl font-bold">{course.name}</h1>
                         <div className="mb-4 flex items-center space-x-2">
                             <span className="text-xl text-yellow-400">{courseRating.media}</span>
-                            <span>⭐️⭐️⭐️⭐️⭐️</span>
-                            <span className="text-primary/80 text-sm">({courseRating.total})</span>
+                            <div className="flex items-center text-m text-yellow-500">
+                            {Array.from({ length: 5 }).map((_, index) => {
+                                const fullStars = Math.floor(rating);
+                                const hasHalfStar = rating - fullStars >= 0.5;
+
+                                if (index < fullStars) {
+                                    return (
+                                        <span key={index}>
+                                            <i className="fas fa-star"></i>{' '}
+                                        </span>
+                                    );
+                                } else if (index === fullStars && hasHalfStar) {
+                                    return (
+                                        <span key={index}>
+                                            <i className="fas fa-star-half-alt"></i>{' '}
+                                        </span>
+                                    );
+                                } else {
+                                    return (
+                                        <span key={index}>
+                                            <i className="far fa-star"></i>{' '}
+                                        </span>
+                                    );
+                                }
+                            })}
+                            </div>
+                            <span className="text-primary/80 notranslate text-sm mt-1">({courseRating.total})</span>
 
                             {matriculado && (
                                 <Dialog open={open} onOpenChange={setOpen}>
