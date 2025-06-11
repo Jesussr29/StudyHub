@@ -37,8 +37,8 @@ class Stadistic extends Model
      * Get the student that owns the statistic.
      */
     public function student()
-    {
-        return $this->belongsTo(Student::class, 'student_id');
-    }
+{
+    return $this->belongsTo(Student::class);
+}
    
 }

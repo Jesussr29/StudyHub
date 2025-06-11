@@ -99,6 +99,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     Route::get('/profile', [ProfileController::class, 'index']);
+    Route::get('/profile/edit', [ProfileController::class, 'edit']);
+    Route::put('/profile/update', [ProfileController::class, 'update']);
     Route::get('/profile/{id}/profile', [ProfileController::class, 'profileAdmin']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
