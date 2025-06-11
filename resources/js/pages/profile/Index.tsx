@@ -2,30 +2,86 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import HeadingSmall from '@/components/heading-small';
 import { BookMarked, BookOpenCheck, CalendarDays, Mail, Phone, Settings, ShieldCheck, User2, UserCircle2, UserPlus } from 'lucide-react';
 
 import InputError from '@/components/input-error';
 import { Transition } from '@headlessui/react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 import { Cell, Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import { Link, router } from '@inertiajs/react';
+import { LogOut } from 'lucide-react';
 
 interface Props {
     user: any;
-    stadistics: any[];
-    enrollments: any[];
+    role: string;
+    // Para estudiantes
+    enrollments?: any[];
+    stadistics?: any[];
+    // Para profesores
+    courses?: any[];
+    courseStats?: any[];
 }
 
-export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
+export default function ProfileIndex({ user, role, enrollments = [], stadistics = [], courses = [], courseStats = [] }: Props) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [cursoSeleccionado, setCursoSeleccionado] = useState<any>(null);
+    const cleanup = useMobileNavigation();
+
+    const handleLogout = () => {
+        cleanup();
+        router.flushAll();
+    };
+
+    const testsCursoSeleccionado = cursoSeleccionado?.tests ?? [];
+
+    const statCurso = courseStats.find((c: any) => (c.course?.id || c.course_id) === cursoSeleccionado?.id);
+
+    const CustomTooltipTests = ({ active, payload }: any) => {
+        if (active && payload && payload.length) {
+            const test = payload[0].payload;
+
+            const alumnosStats = (statCurso?.stats ?? [])
+                .filter((stat: any) => stat.test_id === test.id)
+                .map((stat: any) => ({
+                    alumno: stat.student_name || stat.alumno_nombre || stat.student?.name || 'Alumno',
+                    aciertos: stat.correct_answers,
+                    errores: stat.incorrect_answers,
+                    no_contestadas: stat.unanswered_questions,
+                    total: stat.total_questions ?? stat.number_of_questions ?? 0,
+                }));
+
+            return (
+                <div className="max-w-xs rounded-lg border border-gray-300 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                    <p className="truncate text-lg font-bold text-gray-900 dark:text-white">{test.name}</p>
+                    <p className="mb-1 text-gray-700 dark:text-gray-300">
+                        <strong>Total preguntas:</strong> {test.number_of_questions}
+                    </p>
+                    <div className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                        <strong>Alumnos:</strong>
+                        <ul className="ml-3 list-disc">
+                            {alumnosStats.length === 0 && <li>No hay estadísticas</li>}
+                            {alumnosStats.map((al, i) => (
+                                <li key={i}>
+                                    {al.alumno}: {al.aciertos} aciertos / {al.errores} errores <br></br>
+                                    {al.no_contestadas} no contestadas
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+        return null;
+    };
 
     const cursosEnProceso = enrollments.filter((e) => e.completion_date === null);
     const cursosCompletados = enrollments.filter((e) => e.completion_date !== null);
@@ -44,17 +100,34 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
     };
 
     const estadisticasCurso = (() => {
-        if (!cursoSeleccionado) return [];
+        if (!cursoSeleccionado) return;
 
-        const inscripcion = enrollments.find((s) => s.course.id === cursoSeleccionado.id);
-        if (!inscripcion) return [];
+        const inscripcion = enrollments.find((s) => s.course_id?.toString() === cursoSeleccionado.id?.toString());
 
-        const testIds = cursoSeleccionado.tests?.map((test: any) => test.id) ?? [];
+        if (!inscripcion) return;
 
-        return stadistics.filter((stat) => stat.student_id === inscripcion.id && testIds.includes(stat.test_id));
+        const studentId = inscripcion.id?.toString();
+        const tests = cursoSeleccionado.tests ?? [];
+
+        const resultado = tests.map((test: any) => {
+            const stat = stadistics.find((s: any) => s.test_id === test.id);
+
+            return {
+                test_name: test.name,
+                total_questions: stat?.total_questions ?? 0,
+                correct_answers: stat?.correct_answers ?? 0,
+                status: stat?.status ?? 'No iniciado',
+                completed_at: stat?.completed_at ?? null,
+            };
+        });
+
+        const conDatos = resultado.filter((r) => r.total_questions > 0);
+
+        return conDatos.length > 0 ? resultado : undefined;
     })();
 
     const COLORS = ['#00C49F', '#FFBB28', '#FF8042', '#0088FE', '#FF6384', '#36A2EB'];
+    const isTeacher = role === 'teacher';
 
     const CustomTooltip = ({ active, payload }: any) => {
         if (active && payload && payload.length) {
@@ -115,14 +188,51 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
         });
     };
 
+    const editProfile = () => {
+        router.get(`/profile/edit`, {
+            preserveScroll: true,
+        });
+    };
+
+    const { flash } = usePage().props;
+    const [message, setMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (flash?.message) {
+            setMessage(flash.message);
+
+            const timeout = setTimeout(() => {
+                setMessage(null);
+            }, 3000);
+
+            return () => clearTimeout(timeout);
+        }
+    }, [flash?.message]);
+
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
-            <MenuDesplegable/>
+            <MenuDesplegable />
+
+            {message && (
+                <div className="fixed top-4 right-4 z-50">
+                    <div className="max-w-sm rounded-xl border border-green-400 bg-green-100 px-4 py-2 text-sm text-green-800 shadow-lg">
+                        {message}
+                    </div>
+                </div>
+            )}
 
             <section className="mx-auto max-w-7xl px-6 pt-8 pb-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-nowrap items-center gap-4">
-                        <User2 className="h-10 w-10 flex-shrink-0 text-blue-600 sm:h-12 sm:w-12 dark:text-blue-400" />
+                        {user.image !== null ? (
+                            <img
+                                src={`/${user.image}`}
+                                alt="Foto del instructor"
+                                className="h-18 w-18 rounded-full border-4 border-purple-500 object-cover shadow-md"
+                            />
+                        ) : (
+                            <User2 className="h-10 w-10 flex-shrink-0 text-blue-600 sm:h-12 sm:w-12 dark:text-blue-400" />
+                        )}
                         <div className="min-w-0">
                             <h1 className="max-w-xs truncate text-base font-extrabold tracking-tight sm:max-w-none sm:text-3xl md:text-4xl">
                                 {user.name}
@@ -135,6 +245,16 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
                     </div>
                     <div className="max-w-full overflow-hidden text-xs overflow-ellipsis whitespace-nowrap text-gray-500 italic sm:text-sm dark:text-gray-400">
                         Última actualización: {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                        <Link
+                            className="menu-item flex items-center rounded bg-white px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-500 hover:text-red-800"
+                            method="post"
+                            href={route('logout')}
+                            as="button"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span className="font-medium">Cerrar sesión</span>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -160,101 +280,148 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
 
                     {/* Cursos */}
                     <TabsContent value="cursos" className="space-y-12">
-                        <section className="px-4 sm:px-6 lg:px-8">
-                            <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-yellow-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-yellow-400">
-                                <BookOpenCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-                                Cursos en proceso
-                            </h2>
-                            {cursosEnProceso.length === 0 ? (
-                                <p className="text-sm text-gray-500 sm:text-base dark:text-gray-400">No tienes cursos en proceso.</p>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                                    {cursosEnProceso.map((inscripcion) => {
-                                        const curso = inscripcion.course;
-                                        if (!curso) return null;
-                                        return (
-                                            <div
-                                                key={inscripcion.id}
-                                                onClick={() => abrirDialogo(curso)}
-                                                className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
-                                                style={{
-                                                    backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-black/50" />
-                                                <div className="relative z-10 w-full p-4 text-white sm:p-6">
-                                                    <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
-                                                        {curso.name || curso.title}
-                                                    </h3>
-                                                    <p className="text-xs font-semibold text-yellow-300 sm:text-sm">En proceso</p>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </section>
+                        {role == 'student' ? (
+                            <div>
+                                <section className="px-4 sm:px-6 lg:px-8">
+                                    <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-yellow-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-yellow-400">
+                                        <BookOpenCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+                                        Cursos en proceso
+                                    </h2>
+                                    {cursosEnProceso.length === 0 ? (
+                                        <p className="text-sm text-gray-500 sm:text-base dark:text-gray-400">No tienes cursos en proceso.</p>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                                            {cursosEnProceso.map((inscripcion) => {
+                                                const curso = inscripcion.course;
+                                                if (!curso) return null;
+                                                return (
+                                                    <div
+                                                        key={inscripcion.id}
+                                                        onClick={() => abrirDialogo(curso)}
+                                                        className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
+                                                        style={{
+                                                            backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
+                                                            backgroundSize: 'cover',
+                                                            backgroundPosition: 'center',
+                                                        }}
+                                                    >
+                                                        <div className="absolute inset-0 bg-black/50" />
+                                                        <div className="relative z-10 w-full p-4 text-white sm:p-6">
+                                                            <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
+                                                                {curso.name || curso.title}
+                                                            </h3>
+                                                            <p className="text-xs font-semibold text-yellow-300 sm:text-sm">En proceso</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </section>
 
-                        <section className="mt-12 px-4 sm:px-6 lg:px-8">
-                            <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-green-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-green-400">
-                                <ShieldCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
-                                Cursos completados
-                            </h2>
-                            {cursosCompletados.length === 0 ? (
-                                <p className="text-sm text-gray-500 sm:text-base dark:text-gray-400">No tienes cursos terminados.</p>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-                                    {cursosCompletados.map((inscripcion) => {
-                                        const curso = inscripcion.course;
-                                        if (!curso) return null;
-                                        return (
-                                            <div
-                                                key={inscripcion.id}
-                                                onClick={() => abrirDialogo(curso)}
-                                                className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
-                                                style={{
-                                                    backgroundImage: `url(/${curso.image})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                }}
-                                            >
-                                                <div className="absolute inset-0 bg-black/50" />
-                                                <div className="relative z-10 w-full p-4 text-white sm:p-6">
-                                                    <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
-                                                        {curso.name || curso.title}
-                                                    </h3>
-                                                    <p className="text-xs font-semibold text-green-500 sm:text-sm">Completado</p>
+                                <section className="mt-12 px-4 sm:px-6 lg:px-8">
+                                    <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-green-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-green-400">
+                                        <ShieldCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+                                        Cursos completados
+                                    </h2>
+                                    {cursosCompletados.length === 0 ? (
+                                        <p className="text-sm text-gray-500 sm:text-base dark:text-gray-400">No tienes cursos terminados.</p>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                                            {cursosCompletados.map((inscripcion) => {
+                                                const curso = inscripcion.course;
+                                                if (!curso) return null;
+                                                return (
+                                                    <div
+                                                        key={inscripcion.id}
+                                                        onClick={() => abrirDialogo(curso)}
+                                                        className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
+                                                        style={{
+                                                            backgroundImage: `url(/${curso.image})`,
+                                                            backgroundSize: 'cover',
+                                                            backgroundPosition: 'center',
+                                                        }}
+                                                    >
+                                                        <div className="absolute inset-0 bg-black/50" />
+                                                        <div className="relative z-10 w-full p-4 text-white sm:p-6">
+                                                            <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
+                                                                {curso.name || curso.title}
+                                                            </h3>
+                                                            <p className="text-xs font-semibold text-green-500 sm:text-sm">Completado</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </section>
+                            </div>
+                        ) : (
+                            <div>
+                                <section className="px-4 sm:px-6 lg:px-8">
+                                    <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-yellow-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-yellow-400">
+                                        <BookOpenCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
+                                        Mis cursos creados
+                                    </h2>
+                                    {courses.length === 0 ? (
+                                        <p className="text-sm text-gray-500 sm:text-base dark:text-gray-400">No tienes cursos creados.</p>
+                                    ) : (
+                                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+                                            {courses.map((curso) => (
+                                                <div
+                                                    key={curso.id}
+                                                    onClick={() => abrirDialogo(curso)}
+                                                    className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
+                                                    style={{
+                                                        backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center',
+                                                    }}
+                                                >
+                                                    <div className="absolute inset-0 bg-black/50" />
+                                                    <div className="relative z-10 w-full p-4 text-white sm:p-6">
+                                                        <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
+                                                            {curso.name || curso.title}
+                                                        </h3>
+                                                        {courseStats && courseStats.length > 0 && (
+                                                            <p className="text-xs font-semibold text-blue-300 sm:text-sm">
+                                                                {(() => {
+                                                                    const stat = courseStats.find((s: any) => s.course.id === curso.id);
+                                                                    return stat && stat.stats ? `Estadísticas de ${stat.stats.length} pruebas` : '';
+                                                                })()}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </section>
+                                            ))}
+                                        </div>
+                                    )}
+                                </section>
+                            </div>
+                        )}
                     </TabsContent>
 
                     {/* Datos */}
                     <TabsContent value="datos">
                         <section className="grid grid-cols-1 gap-8 px-4 py-6 sm:px-6 md:grid-cols-2 md:gap-10 lg:px-8">
                             {/* Perfil Personal */}
-                            <div className="space-y-5 rounded-lg bg-gray-100 p-6 shadow-lg sm:p-8 dark:bg-gray-800">
-                                <h2 className="flex items-center gap-2 text-2xl font-semibold text-blue-700 sm:text-3xl dark:text-blue-400">
-                                    <UserCircle2 className="h-6 w-6 flex-shrink-0 sm:h-8 sm:w-8" />
-                                    <span>Perfil Personal</span>
-                                </h2>
-
-                                <div className="space-y-3 text-sm sm:text-base">
+                            <div className="space-y-6 rounded-2xl bg-gray-100 p-8 shadow-xl dark:bg-gray-800">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-blue-700 sm:text-3xl dark:text-blue-400">
+                                        <UserCircle2 className="h-7 w-7 flex-shrink-0 sm:h-9 sm:w-9" />
+                                        <span>Perfil Personal</span>
+                                    </h2>
+                                </div>
+                                <div className="space-y-4 text-sm sm:text-base">
                                     <div>
                                         <strong className="text-blue-600 dark:text-blue-400">Nombre completo:</strong> {user.name}
                                     </div>
                                     <div>
                                         <strong className="text-blue-600 dark:text-blue-400">Correo electrónico:</strong> {user.email}
                                     </div>
-                                    {user.username && (
+                                    {user.rol && (
                                         <div>
-                                            <strong className="text-blue-600 dark:text-blue-400">Usuario:</strong> {user.username}
+                                            <strong className="text-blue-600 dark:text-blue-400">Rol:</strong> {user.rol}
                                         </div>
                                     )}
                                     {user.phone && (
@@ -274,30 +441,41 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
                                             </span>
                                         </div>
                                     )}
-                                    {user.role && (
+                                    {user.description && (
                                         <div>
-                                            <strong className="text-blue-600 dark:text-blue-400">Rol:</strong> {user.role}
+                                            <strong className="text-blue-600 dark:text-blue-400">Descripción:</strong> {user.description}
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             {/* Información adicional */}
-                            <div className="space-y-5 rounded-lg bg-gray-100 p-6 shadow-lg sm:p-8 dark:bg-gray-800">
-                                <h2 className="flex items-center gap-2 text-2xl font-semibold text-indigo-700 sm:text-3xl dark:text-indigo-400">
-                                    <UserPlus className="h-6 w-6 flex-shrink-0 sm:h-8 sm:w-8" />
-                                    <span>Información adicional</span>
-                                </h2>
-
-                                <p className="text-xs text-gray-700 sm:text-sm dark:text-gray-300">
-                                    Aquí puedes agregar más información relevante sobre el usuario, como:
-                                </p>
-                                <ul className="list-inside list-disc space-y-1 text-xs text-gray-800 sm:space-y-2 sm:text-sm dark:text-gray-300">
-                                    <li>Preferencias de notificación</li>
-                                    <li>Historial de actividad</li>
-                                    <li>Última sesión iniciada</li>
-                                    <li>Otras configuraciones personales</li>
-                                </ul>
+                            <div className="flex flex-col justify-between space-y-6 rounded-2xl bg-gray-100 p-8 shadow-xl dark:bg-gray-800">
+                                <div>
+                                    <h2 className="flex items-center gap-3 text-2xl font-bold text-indigo-700 sm:text-3xl dark:text-indigo-400">
+                                        <UserPlus className="h-7 w-7 flex-shrink-0 sm:h-9 sm:w-9" />
+                                        <span>Información adicional</span>
+                                    </h2>
+                                    <p className="mt-3 text-xs text-gray-700 sm:text-sm dark:text-gray-300">
+                                        Puedes completar y personalizar tu perfil para mejorar tu experiencia en la plataforma.
+                                    </p>
+                                </div>
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        type="button"
+                                        className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:outline-none dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                                        onClick={editProfile}
+                                    >
+                                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6l11-11a2.828 2.828 0 00-4-4L5 17v4z"
+                                            />
+                                        </svg>
+                                        Editar perfil
+                                    </button>
+                                </div>
                             </div>
                         </section>
                     </TabsContent>
@@ -402,10 +580,61 @@ export default function ProfileIndex({ user, stadistics, enrollments }: Props) {
                         <DialogTitle className="text-3xl font-extrabold text-blue-700 dark:text-blue-400">
                             {cursoSeleccionado?.name || cursoSeleccionado?.title}
                         </DialogTitle>
-                        <DialogDescription className="mt-1 text-gray-600 dark:text-gray-400">Distribución de preguntas por test</DialogDescription>
+                        <DialogDescription className="mt-1 text-gray-600 dark:text-gray-400">
+                            {isTeacher ? 'Distribución de preguntas por test y desempeño de alumnos' : 'Distribución de preguntas por test'}
+                        </DialogDescription>
                     </DialogHeader>
 
-                    {estadisticasCurso.length > 0 ? (
+                    {/* Contenido dinámico del gráfico según rol */}
+                    {isTeacher ? (
+                        testsCursoSeleccionado && testsCursoSeleccionado.length > 0 ? (
+                            <div className="w-full max-w-xl">
+                                <ResponsiveContainer width="100%" height={350}>
+                                    <PieChart>
+                                        <Pie
+                                            data={testsCursoSeleccionado}
+                                            dataKey="number_of_questions"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            innerRadius={60}
+                                            paddingAngle={4}
+                                            isAnimationActive={true}
+                                            animationDuration={800}
+                                            animationEasing="ease-out"
+                                            labelLine={false}
+                                            label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                                        >
+                                            {testsCursoSeleccionado.map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <RechartsTooltip content={<CustomTooltipTests />} />
+                                        <Legend
+                                            iconType="circle"
+                                            layout="horizontal"
+                                            verticalAlign="bottom"
+                                            align="center"
+                                            wrapperStyle={{
+                                                paddingTop: 20,
+                                                fontSize: '14px',
+                                                fontWeight: 600,
+                                                color: 'var(--text-color)',
+                                                maxWidth: '100%',
+                                                flexWrap: 'wrap',
+                                                justifyContent: 'center',
+                                                display: 'flex',
+                                                gap: 12,
+                                            }}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        ) : (
+                            <p className="mt-4 font-semibold text-red-500">No hay tests en este curso.</p>
+                        )
+                    ) : estadisticasCurso && estadisticasCurso.length >= 1 ? (
                         <div className="w-full max-w-xl">
                             <ResponsiveContainer width="100%" height={350}>
                                 <PieChart key={chartKey}>

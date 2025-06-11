@@ -13,7 +13,7 @@ class CoursesController extends Controller
     public function index()
 {
     $usuario = Auth::user();
-    $cursos = Course::all();
+    $cursos = Course::where('isHidden', false)->get();
     $favoritos = Favorite::where('user_id', $usuario->id)->pluck('course_id')->toArray();
 
     $cursos->transform(function ($curso) use ($favoritos, $usuario) {

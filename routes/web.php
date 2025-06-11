@@ -98,6 +98,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
     Route::get('/profile', [ProfileController::class, 'index']);
+    Route::get('/profile/edit', [ProfileController::class, 'edit']);
+    Route::put('/profile/update', [ProfileController::class, 'update']);
     Route::get('/profile/{id}/profile', [ProfileController::class, 'profileAdmin']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
@@ -110,12 +112,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/storeCourse', [AdminController::class, 'storeCourse'])->name('storeCourse');
     Route::post('/admin/storeUser', [AdminController::class, 'storeUser'])->name('storeUser');
     Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
+    Route::match(['put', 'post'], '/test', function (Request $request) {
+      $controller = app(TestController::class);
+      return $controller->guardar($request);
+    });
 });
 
-  Route::match(['put', 'post'], '/test', function (Request $request) {
-    $controller = app(TestController::class);
-    return $controller->guardar($request);
-});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

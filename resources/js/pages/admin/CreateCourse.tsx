@@ -98,7 +98,7 @@ export default function CreateCourse({ teachers }: Props) {
 
         {/* Duración */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Duración (horas)</label>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Duración (minutos)</label>
           <input
             type="number"
             name="duration"
