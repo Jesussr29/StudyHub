@@ -8,6 +8,7 @@ use App\Http\Controllers\Home\HomeController as HomeController;
 use App\Http\Controllers\Profile\ProfileController;
 use App\Http\Controllers\Rating\RatingController;
 use App\Http\Controllers\Test\TestController;
+use App\Http\Controllers\Test\TestPdf;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -110,6 +111,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/admin/storeCourse', [AdminController::class, 'storeCourse'])->name('storeCourse');
     Route::post('/admin/storeUser', [AdminController::class, 'storeUser'])->name('storeUser');
     Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
+    Route::get('/test/{student_id}/{test_id}', [TestPdf::class, 'generarPdf'])->name('test');
+    Route::get('/ver-pdf', [TestPdf::class, 'verPDF']);
+
+
 });
 
   Route::match(['put', 'post'], '/test', function (Request $request) {

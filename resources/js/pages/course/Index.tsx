@@ -16,6 +16,7 @@ interface Props {
     matriculado: boolean;
     rating: any;
     courseRating: any;
+    student: any;
 }
 
 const formatearDuración = (minutos: number): string => {
@@ -35,6 +36,10 @@ const linkTest = (id: number) => {
     router.get(`/test/${id}`);
 };
 
+const linkPdf = (student_id: String, test_id: String) => {
+    router.get(`/test/${student_id}/${test_id}`);
+};
+
 const handleFavorite = (userId: string, courseId: string) => {
     const formData = new FormData();
     formData.append('user_id', userId);
@@ -45,7 +50,7 @@ const handleFavorite = (userId: string, courseId: string) => {
     });
 };
 
-export default function Course({ course, profesor, tests, user, isFavorite, matriculado, rating, courseRating }: Props) {
+export default function Course({ course, profesor, tests, user, isFavorite, matriculado, rating, courseRating, student }: Props) {
     const { props } = usePage();
     const flashMessage = props.flash?.message ?? props.flash?.error ?? null;
     const flashType = props.flash?.error ? 'error' : 'success';
@@ -125,39 +130,39 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                         <h1 className="mb-2 text-4xl font-bold">{course.name}</h1>
                         <div className="mb-4 flex items-center space-x-2">
                             <span className="text-xl text-yellow-400">{courseRating.media}</span>
-                            <div className="flex items-center text-m text-yellow-500">
-                            {Array.from({ length: 5 }).map((_, index) => {
-                                const fullStars = Math.floor(rating);
-                                const hasHalfStar = rating - fullStars >= 0.5;
+                            <div className="text-m flex items-center text-yellow-500">
+                                {Array.from({ length: 5 }).map((_, index) => {
+                                    const fullStars = Math.floor(rating);
+                                    const hasHalfStar = rating - fullStars >= 0.5;
 
-                                if (index < fullStars) {
-                                    return (
-                                        <span key={index}>
-                                            <i className="fas fa-star"></i>{' '}
-                                        </span>
-                                    );
-                                } else if (index === fullStars && hasHalfStar) {
-                                    return (
-                                        <span key={index}>
-                                            <i className="fas fa-star-half-alt"></i>{' '}
-                                        </span>
-                                    );
-                                } else {
-                                    return (
-                                        <span key={index}>
-                                            <i className="far fa-star"></i>{' '}
-                                        </span>
-                                    );
-                                }
-                            })}
+                                    if (index < fullStars) {
+                                        return (
+                                            <span key={index}>
+                                                <i className="fas fa-star"></i>{' '}
+                                            </span>
+                                        );
+                                    } else if (index === fullStars && hasHalfStar) {
+                                        return (
+                                            <span key={index}>
+                                                <i className="fas fa-star-half-alt"></i>{' '}
+                                            </span>
+                                        );
+                                    } else {
+                                        return (
+                                            <span key={index}>
+                                                <i className="far fa-star"></i>{' '}
+                                            </span>
+                                        );
+                                    }
+                                })}
                             </div>
-                            <span className="text-primary/80 notranslate text-sm mt-1">({courseRating.total})</span>
+                            <span className="text-primary/80 notranslate mt-1 text-sm">({courseRating.total})</span>
 
                             {matriculado && (
                                 <Dialog open={open} onOpenChange={setOpen}>
                                     <DialogTrigger asChild>
-                                        <button className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 px-5 py-2.5 text-white shadow-lg transition-transform hover:scale-105 hover:shadow-xl active:scale-95">
-                                            ⭐ Valorar
+                                        <button className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 px-3 py-1.5 text-white shadow-lg transition-transform hover:scale-103 hover:shadow-xl active:scale-95">
+                                            <i className="fas fa-star text-yellow-500"></i>Valorar
                                         </button>
                                     </DialogTrigger>
 
@@ -299,13 +304,15 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                             </p>
                                         </div>
                                         <div className="mt-4 flex gap-4 md:mt-0">
-                                            <a
-                                                href={`/pdfs/${test.pdf || 'introduccion-al-curso.pdf'}`}
-                                                download
-                                                className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
-                                            >
-                                                📄 Descargar PDF
-                                            </a>
+                                            {test.hecho && (
+                                                <a
+                                                    onClick={() => linkPdf(student.id, test.id)}
+                                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
+                                                >
+                                                    📄 Descargar PDF
+                                                </a>
+                                            )}
+
                                             <a
                                                 onClick={() => linkTest(test.id)}
                                                 className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"

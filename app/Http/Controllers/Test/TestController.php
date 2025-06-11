@@ -26,7 +26,9 @@ public function guardar(Request $request)
     ]);
 
     // Obtener el estudiante vinculado al usuario
-    $estudiante = Student::where('user_id', $request->usuario_id)->first();
+    $estudiante = Student::where('user_id', $request->usuario_id)
+        ->where('course_id', $request->idCurso)
+        ->first();
 
     if (!$estudiante) {
         return back()->withErrors(['usuario_id' => 'No se encontró el estudiante.']);

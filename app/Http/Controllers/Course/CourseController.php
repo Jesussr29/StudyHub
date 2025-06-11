@@ -9,6 +9,7 @@ use App\Models\Question;
 use App\Models\Rating;
 use App\Models\Student;
 use App\Models\Test;
+use App\Models\TestEvaluation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -39,10 +40,28 @@ class CourseController extends Controller
         $count = $ratingCourse->count();
         $average = $count > 0 ? round($ratingCourse->avg('rating'), 1) : 0.0;
 
+        $student = Student::where('user_id', $user->id)
+            ->where('course_id', $curso->id)
+            ->first();
+
         $resultado = [
             'media' => $average,
             'total' => $count,
         ];
+
+        if ($matriculado) {
+            $tests->map(function ($test) use ($student) {
+                $hecho = TestEvaluation::where('student_id', $student->id)
+                    ->where('test_id', $test->id)->exists();
+                if ($hecho) {
+                    $test->hecho = true;
+                } else {
+                    $test->hecho = false;
+                }
+                return $test;
+            });
+        }
+
 
         return Inertia::render("course/Index", [
             'course' => $curso,
@@ -53,6 +72,7 @@ class CourseController extends Controller
             'matriculado' => $matriculado,
             'rating' => $rating,
             'courseRating' => $resultado,
+            'student' => $student,
         ]);
     }
 
