@@ -46,16 +46,7 @@ class TestController extends Controller
         $testEvaluation->score = $request->nota;
         $testEvaluation->is_passed = $request->nota >= 5;
         $testEvaluation->test_id = $request->idTest;
-        $testEvaluation = new TestEvaluation();
-        $testEvaluation->student_id = $estudiante->id;
-        $testEvaluation->correct_answers = $request->aciertos;
-        $testEvaluation->incorrect_answers = $request->fallos;
-        $testEvaluation->unanswered_questions = $request->no_respondidas;
-        $testEvaluation->score = $request->nota;
-        $testEvaluation->is_passed = $request->nota >= 5;
-        $testEvaluation->test_id = $request->idTest;
 
-        $testEvaluation->save();
         $testEvaluation->save();
 
         // Obtener o crear la estadística
@@ -75,13 +66,13 @@ class TestController extends Controller
         $estadistica->save();
         $testsDelCurso = Test::where('course_id', $request->idCurso)->pluck('id')->toArray();
 
-$evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
-    ->whereIn('test_id', $testsDelCurso)
-    ->get();
+        $evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
+            ->whereIn('test_id', $testsDelCurso)
+            ->get();
 
-$testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
+        $testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
 
-$completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
+        $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
 
         $evaluacionesAprobadas = $evaluaciones->filter(function ($eval) {
             return $eval->score >= 5;
@@ -90,8 +81,13 @@ $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
         $todosAprobados = $evaluacionesAprobadas === count($testsDelCurso);
 
         if ($completoTodos && $todosAprobados) {
-            if (!$estudiante->completion_date) {
+            if (is_null($estudiante->completion_date)) {
                 $estudiante->completion_date = now();
+                $estudiante->save();
+            }
+        } else {
+            if (!is_null($estudiante->completion_date)) {
+                $estudiante->completion_date = null;
                 $estudiante->save();
             }
         }
@@ -100,4 +96,3 @@ $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
             ->with('message', 'Test guardado correctamente.');
     }
 }
-

@@ -116,7 +116,7 @@ export default function Courses({ user, courses }: Props) {
                     <div className="mb-8 flex flex-col items-center text-2xl sm:flex-row sm:items-center sm:text-3xl">
                         <img src="https://flagcdn.com/w40/es.png" alt="Bandera de España" width="24" height="16" className="mb-2 sm:mr-4 sm:mb-0" />
                         <div className="mb-2 flex items-center gap-3 sm:mb-0">
-                            <h1>Hola</h1> <span>{user.name}</span>
+                            <h1>Hola</h1> <span className='notranslate'>{user.name}</span>
                         </div>
                         <RotatingText
                             texts={[

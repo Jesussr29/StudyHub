@@ -188,9 +188,6 @@ class AdminController extends Controller
 
     public function deleteCourse($id)
     {
-        if (Auth::user()->rol !== 'admin') {
-            abort(403, 'Acceso denegado.');
-        }
 
         $course = Course::findOrFail($id);
         $courseTitle = $course->name;

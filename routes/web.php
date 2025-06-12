@@ -67,13 +67,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::delete('/admin/{id}/course', function ($id) {
-        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        abort_unless(auth()->check() && (auth()->user()->rol === 'admin' || auth()->user()->rol === 'teacher'), 403);
         $controller = app(AdminController::class);
         return $controller->deleteCourse($id);
     });
 
     Route::delete('/admin/{id}/test', function ($id) {
-        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+    abort_unless(auth()->check() && (auth()->user()->rol === 'admin' || auth()->user()->rol === 'teacher'), 403);
         $controller = app(AdminController::class);
         return $controller->deleteTest($id);
     });
