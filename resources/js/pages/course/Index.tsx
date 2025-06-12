@@ -116,7 +116,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         <>
             <Head title={course.name} />
             <header className="bg-secondary sticky top-0 z-50 shadow">
-                <MenuDesplegable />
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
             {message && (
                 <div className="fixed top-4 right-4 z-50">
@@ -239,6 +239,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             )}
                         </div>
 
+<<<<<<< HEAD
                         <p className="text-primary/80 mb-6">{course.description}</p>
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)}</p>
 
@@ -282,6 +283,41 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
 
 
 
+=======
+                        <div className="flex space-x-4">
+                            {user.rol !== 'teacher' && user.rol !== 'admin' && (
+                                <>
+                                    {!student && (
+                                        <button
+                                            className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700 sm:flex-auto"
+                                            onClick={() => handleEnrollment(course.id)}
+                                        >
+                                            Matricularse
+                                        </button>
+                                    )}
+
+                                    {student &&
+                                        student.completion_date == null &&
+                                        (!matriculado ? (
+                                            <button
+                                                className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700 sm:flex-auto"
+                                                onClick={() => handleEnrollment(course.id)}
+                                            >
+                                                Matricularse
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-red-700 sm:flex-auto"
+                                                onClick={() => handleEnrollment(course.id)}
+                                            >
+                                                Darse de baja
+                                            </button>
+                                        ))}
+
+                                    {student && student.completion_date !== null && <p className="font-semibold text-gray-600">Curso completado</p>}
+                                </>
+                            )}
+>>>>>>> 762b998e58ce0ed724e7bb54200734505745e467
                             {isFavorite ? (
                                 <button
                                     className="max-w-[200px] flex-1 cursor-pointer rounded-lg border border-red-400 px-6 py-2 font-semibold text-red-400 transition duration-300 hover:bg-red-900 hover:text-white sm:flex-auto"
@@ -322,17 +358,6 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             {profesor.description ? profesor.description : 'El profesor aún no ha proporcionado una descripción.'}
                         </p>
 
-                        <div className="mt-5 flex justify-center gap-4">
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                🐦
-                            </a>
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                💼
-                            </a>
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                🔗
-                            </a>
-                        </div>
                     </div>
                 </div>
 

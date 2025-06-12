@@ -335,7 +335,7 @@ export default function AdminIndex({
     return (
         <>
             <header className="bg-secondary sticky top-0 z-50 shadow">
-                <MenuDesplegable />
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
 
             <main className="relative mx-auto max-w-[90%] p-6">

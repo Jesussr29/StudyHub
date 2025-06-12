@@ -83,8 +83,8 @@ class CourseController extends Controller
 
 
         $test = Test::where("id", $id)->firstOrFail();
-        // $questions = Question::where("test_id", $id)->get();
-        $questions = Question::all();
+        $questions = Question::where("test_id", $id)->get();
+        // $questions = Question::all();
 
 
         return Inertia::render("test/Index", [

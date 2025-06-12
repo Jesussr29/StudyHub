@@ -32,6 +32,143 @@ interface Props {
 }
 
 export default function ProfileIndex({ user, role, enrollments = [], stadistics = [], courses = [], courseStats = [] }: Props) {
+    const [idCursoSeleccionado, setIdCursoSeleccionado] = useState<number | null>(null);
+
+    //CREAR TEST
+
+    const [mostrarModalTest, setMostrarModalTest] = useState(false);
+
+    // Funciones para abrir y cerrar el modal
+    const abrirModalTest = () => setMostrarModalTest(true);
+    const cerrarModalTest = () => setMostrarModalTest(false);
+
+    const [numeroPreguntas, setNumeroPreguntas] = useState(1);
+
+    const [formDataTest, setFormDataTest] = useState({
+        preguntas: [],
+        nombreTest: '',
+        descripcionTest: '',
+        duracionTest: '',
+    });
+
+    const handleNombreChange = (e) => {
+        setFormDataTest({ ...formDataTest, nombreTest: e.target.value });
+    };
+
+    const handleDuracionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormDataTest((prevData) => ({
+            ...prevData,
+            duracionTest: e.target.value,
+        }));
+    };
+
+    const handlePreguntaChange = (i, enunciado) => {
+        const nuevasPreguntas = [...formDataTest.preguntas];
+        if (!nuevasPreguntas[i]) {
+            nuevasPreguntas[i] = { enunciado: '', opciones: ['', '', '', ''], correcta: null };
+        }
+        nuevasPreguntas[i].enunciado = enunciado;
+        setFormDataTest({ ...formDataTest, preguntas: nuevasPreguntas });
+    };
+
+    const handleRespuestaChange = (i, j, texto) => {
+        const nuevasPreguntas = [...formDataTest.preguntas];
+        if (!nuevasPreguntas[i]) {
+            nuevasPreguntas[i] = { enunciado: '', opciones: ['', '', '', ''], correcta: null };
+        }
+        nuevasPreguntas[i].opciones[j] = texto;
+        setFormDataTest({ ...formDataTest, preguntas: nuevasPreguntas });
+    };
+
+    const marcarCorrecta = (i, j) => {
+        const nuevasPreguntas = [...formDataTest.preguntas];
+        if (!nuevasPreguntas[i]) {
+            nuevasPreguntas[i] = { enunciado: '', opciones: ['', '', '', ''], correcta: null };
+        }
+        nuevasPreguntas[i].correcta = j;
+        setFormDataTest({ ...formDataTest, preguntas: nuevasPreguntas });
+    };
+
+    const handleCrearTest = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+
+        const preguntasFormateadas = formDataTest.preguntas.map((pregunta) => ({
+            enunciado: pregunta.enunciado,
+            opcionA: pregunta.opciones[0],
+            opcionB: pregunta.opciones[1],
+            opcionC: pregunta.opciones[2],
+            opcionD: pregunta.opciones[3],
+            correcta: ['A', 'B', 'C', 'D'][pregunta.correcta],
+        }));
+
+        const data = new FormData();
+        data.append('nombre', formDataTest.nombreTest);
+        data.append('duracion', formDataTest.duracionTest);
+        data.append('id_curso', idCursoSeleccionado?.toString() || '');
+        data.append('numeroPreguntas', numeroPreguntas.toString());
+        data.append('preguntas', JSON.stringify(preguntasFormateadas));
+
+        router.post('/profile/createTest', data, {
+            preserveScroll: true,
+            forceFormData: true,
+            onSuccess: () => {
+                setMostrarModalTest(false);
+                location.reload();
+            },
+        });
+    };
+
+    // CREAR CURSO
+
+    const [formData, setFormData] = useState({
+        nombre: '',
+        descripcion: '',
+    });
+
+    const [imagen, setImagen] = useState<File | null>(null);
+    const [imagenPreview, setImagenPreview] = useState('');
+    const [filePdf, setFilePdf] = useState<File | null>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleImagenChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImagen(file);
+            setImagenPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selected = e.target.files?.[0];
+        if (selected) {
+            setFilePdf(selected);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        cerrarModal();
+
+        const data = new FormData();
+        data.append('nombre', formData.nombre);
+        data.append('descripcion', formData.descripcion);
+        if (imagen) data.append('imagen', imagen);
+        if (filePdf) data.append('pdf', filePdf);
+
+        router.post('/profile/createCourse', data, {
+            preserveScroll: true,
+            forceFormData: true,
+        });
+    };
+
     const [dialogOpen, setDialogOpen] = useState(false);
     const [cursoSeleccionado, setCursoSeleccionado] = useState<any>(null);
     const cleanup = useMobileNavigation();
@@ -40,6 +177,12 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
         cleanup();
         router.flushAll();
     };
+
+    const [mostrarModal, setMostrarModal] = useState(false);
+
+    // Funciones para abrir y cerrar el modal
+    const abrirModal = () => setMostrarModal(true);
+    const cerrarModal = () => setMostrarModal(false);
 
     const testsCursoSeleccionado = cursoSeleccionado?.tests ?? [];
 
@@ -212,8 +355,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
     return (
         
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
-            <Head title="Perfil" />
-            <MenuDesplegable />
+            <MenuDesplegable user={user}></MenuDesplegable>
 
             {message && (
                 <div className="fixed top-4 right-4 z-50">
@@ -245,17 +387,20 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                             </p>
                         </div>
                     </div>
-                    <div className="max-w-full overflow-hidden text-xs overflow-ellipsis whitespace-nowrap text-gray-500 italic sm:text-sm dark:text-gray-400">
-                        Última actualización: {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                    <div className="flex max-w-full flex-col gap-5 text-xs text-gray-500 italic sm:flex-row sm:items-center sm:justify-between sm:text-sm dark:text-gray-400">
+                        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+                            Última actualización: {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                        </div>
+
                         <Link
-                            className="menu-item flex items-center rounded bg-white px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-500 hover:text-red-800"
+                            className="menu-item flex w-full items-center justify-center rounded bg-red-500 px-3 py-2 text-sm text-white transition-colors hover:bg-red-600 sm:w-auto"
                             method="post"
                             href={route('logout')}
                             as="button"
                             onClick={handleLogout}
                         >
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span className="font-medium">Cerrar sesión</span>
+                            <LogOut className="mr-2 h-4 w-4 text-white" />
+                            <span className="font-medium text-white">Cerrar sesión</span>
                         </Link>
                     </div>
                 </div>
@@ -361,6 +506,239 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                         ) : (
                             <div>
                                 <section className="px-4 sm:px-6 lg:px-8">
+                                    <div className="mb-6 flex flex-col justify-center gap-2">
+                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Crear nuevo curso</h3>
+                                        <button
+                                            onClick={abrirModal} // ← Aquí conectas con la lógica para abrir el modal
+                                            className="inline-flex w-full max-w-[200px] items-center justify-center gap-2 rounded-lg bg-yellow-600 px-4 py-2 text-white transition hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-500 focus:outline-none dark:bg-yellow-500 dark:hover:bg-yellow-600 dark:focus:ring-yellow-400"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            Crear curso
+                                        </button>
+                                    </div>
+
+                                    {mostrarModalTest && (
+                                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
+                                            <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+                                                <h4 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Crear Test</h4>
+
+                                                <form onSubmit={handleCrearTest} className="space-y-6">
+                                                    {/* Nombre del Test */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
+                                                        <input
+                                                            name="nombreTest"
+                                                            value={formDataTest.nombreTest}
+                                                            onChange={handleNombreChange}
+                                                            type="text"
+                                                            placeholder="Ej. Test de prueba"
+                                                            className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                            required
+                                                            minLength={3}
+                                                        />
+                                                    </div>
+
+                                                    {/* Duración */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Duración del test (minutos)
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            name="duracionTest"
+                                                            placeholder="Ej. 45"
+                                                            value={formDataTest.duracionTest}
+                                                            onChange={handleDuracionChange}
+                                                            className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                            required
+                                                            min={1}
+                                                            max={300}
+                                                        />
+                                                    </div>
+
+                                                    {/* Número de preguntas */}
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Número de preguntas
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            name="numeroPreguntasTest"
+                                                            min={1}
+                                                            max={100}
+                                                            value={numeroPreguntas}
+                                                            onChange={(e) => {
+                                                                const nuevoNumero = parseInt(e.target.value);
+                                                                if (!isNaN(nuevoNumero) && nuevoNumero > 0 && nuevoNumero <= 100) {
+                                                                    setNumeroPreguntas(nuevoNumero);
+                                                                }
+                                                            }}
+                                                            placeholder="Ej. 3"
+                                                            className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    {/* Preguntas */}
+                                                    {Array.from({ length: numeroPreguntas }).map((_, i) => (
+                                                        <div key={i} className="space-y-2 rounded-lg border p-4 dark:border-gray-600">
+                                                            <label className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                                                                Pregunta {i + 1}
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder={`Enunciado de la pregunta ${i + 1}`}
+                                                                value={formDataTest.preguntas[i]?.enunciado || ''}
+                                                                onChange={(e) => handlePreguntaChange(i, e.target.value)}
+                                                                className="w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                                required
+                                                                minLength={5}
+                                                            />
+
+                                                            {[...Array(4)].map((_, j) => (
+                                                                <div
+                                                                    key={j}
+                                                                    className="flex items-center gap-2 rounded-md border px-3 py-2 dark:border-gray-600 dark:bg-gray-800"
+                                                                >
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder={`Respuesta ${j + 1}`}
+                                                                        value={formDataTest.preguntas[i]?.opciones[j] || ''}
+                                                                        onChange={(e) => handleRespuestaChange(i, j, e.target.value)}
+                                                                        className="w-full bg-transparent text-sm dark:text-white"
+                                                                        required
+                                                                        minLength={1}
+                                                                    />
+                                                                    <label className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
+                                                                        <input
+                                                                            type="radio"
+                                                                            name={`pregunta-${i}-correcta`}
+                                                                            checked={formDataTest.preguntas[i]?.correcta === j}
+                                                                            onChange={() => marcarCorrecta(i, j)}
+                                                                            className="h-4 w-4 accent-yellow-500"
+                                                                            required
+                                                                        />
+                                                                        Correcta
+                                                                    </label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ))}
+
+                                                    {/* Botones */}
+                                                    <div className="flex justify-end gap-2 pt-4">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setMostrarModalTest(false)}
+                                                            className="rounded-lg border px-4 py-2 text-sm dark:text-white dark:hover:bg-gray-700"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                                                        >
+                                                            Guardar test
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {mostrarModal && (
+                                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6">
+                                            <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800">
+                                                <h4 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Nuevo curso</h4>
+
+                                                <form className="space-y-4" onSubmit={handleSubmit} encType="multipart/form-data">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
+                                                        <input
+                                                            name="nombre"
+                                                            value={formData.nombre}
+                                                            onChange={handleChange}
+                                                            type="text"
+                                                            placeholder="Ej. Curso de Vue"
+                                                            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Descripción
+                                                        </label>
+                                                        <textarea
+                                                            name="descripcion"
+                                                            value={formData.descripcion}
+                                                            onChange={handleChange}
+                                                            rows={3}
+                                                            placeholder="Breve descripción..."
+                                                            className="mt-1 min-h-[80px] w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            Imagen del curso
+                                                        </label>
+                                                        {imagenPreview && (
+                                                            <img
+                                                                src={imagenPreview}
+                                                                alt="Vista previa"
+                                                                className="mb-2 h-24 w-24 rounded object-cover shadow"
+                                                            />
+                                                        )}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleImagenChange}
+                                                            className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-yellow-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-yellow-700 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                        />
+                                                    </div>
+
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                            PDF del curso *
+                                                        </label>
+                                                        <input
+                                                            type="file"
+                                                            required
+                                                            accept=".pdf"
+                                                            onChange={handlePdfChange}
+                                                            className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-yellow-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-yellow-700 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                                                        />
+                                                    </div>
+
+                                                    <div className="mt-6 flex justify-end gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={cerrarModal}
+                                                            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                                                        >
+                                                            Cancelar
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className="rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-500 focus:outline-none dark:bg-yellow-500 dark:hover:bg-yellow-600 dark:focus:ring-yellow-400"
+                                                        >
+                                                            Crear curso
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <h2 className="mb-6 flex items-center gap-2 text-lg font-semibold text-yellow-700 sm:gap-3 sm:text-xl md:text-2xl dark:text-yellow-400">
                                         <BookOpenCheck className="h-5 w-5 flex-shrink-0 sm:h-6 sm:w-6 md:h-7 md:w-7" />
                                         Mis cursos creados
@@ -373,7 +751,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                 <div
                                                     key={curso.id}
                                                     onClick={() => abrirDialogo(curso)}
-                                                    className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
+                                                    className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-103 hover:shadow-2xl sm:h-56 md:h-64"
                                                     style={{
                                                         backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
                                                         backgroundSize: 'cover',
@@ -381,6 +759,32 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                     }}
                                                 >
                                                     <div className="absolute inset-0 bg-black/50" />
+
+                                                    {/* Botón verde en la esquina superior derecha */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // evitar que se abra el diálogo
+                                                            abrirModalTest();
+                                                            setIdCursoSeleccionado(curso.id);
+                                                        }}
+                                                        className="absolute top-4 right-4 z-20 cursor-pointer rounded bg-green-500 px-3 py-1 text-xs font-semibold text-white hover:bg-green-600"
+                                                    >
+                                                        Agregar test
+                                                    </button>
+
+                                                    {/* Botón verde en la esquina superior derecha */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // evitar que se abra el diálogo
+                                                            router.get(`/profile/${curso.id}/editCourse`);
+                                                        }}
+                                                        className="absolute top-4 left-4 z-20 cursor-pointer rounded bg-yellow-600 px-3 py-1 text-xs font-semibold text-white hover:bg-yellow-700"
+                                                    >
+                                                        Editar curso
+                                                    </button>
+
                                                     <div className="relative z-10 w-full p-4 text-white sm:p-6">
                                                         <h3 className="mb-1 line-clamp-2 text-base font-bold sm:text-lg md:text-xl">
                                                             {curso.name || curso.title}

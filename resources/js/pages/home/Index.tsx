@@ -99,7 +99,7 @@ export default function Home({ user, courses }: Props) {
         <>
             <Head title="Home" />
             <header className="sticky top-0 z-50">
-                <MenuDesplegable></MenuDesplegable>
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
 
             {/* CONTENIDO */}

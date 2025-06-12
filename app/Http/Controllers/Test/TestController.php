@@ -14,9 +14,9 @@ use Illuminate\Http\Request;
 class TestController extends Controller
 { // Asegúrate de importar el modelo
 
-    public function guardar(Request $request)
-    {
-        $request->validate([
+public function guardar(Request $request)
+{
+    $request->validate([
             'usuario_id' => 'required|string|exists:users,id',
             'aciertos' => 'required|integer',
             'fallos' => 'required|integer',
@@ -40,16 +40,16 @@ class TestController extends Controller
             ->where('test_id', $request->idTest)
             ->delete();
 
-        // Crear la nueva evaluación
-        TestEvaluation::create([
-            'student_id' => $estudiante->id,
-            'correct_answers' => $request->aciertos,
-            'incorrect_answers' => $request->fallos,
-            'unanswered_questions' => $request->no_respondidas,
-            'nota' => $request->nota,
-            'is_passed' => $request->nota >= 5,
-            'test_id' => $request->idTest,
-        ]);
+    $testEvaluation = new TestEvaluation();
+    $testEvaluation->student_id = $estudiante->id;
+    $testEvaluation->correct_answers = $request->aciertos;
+    $testEvaluation->incorrect_answers = $request->fallos;
+    $testEvaluation->unanswered_questions = $request->no_respondidas;
+    $testEvaluation->score = $request->nota;
+    $testEvaluation->is_passed = $request->nota >= 5;
+    $testEvaluation->test_id = $request->idTest;
+
+    $testEvaluation->save();
 
         // Obtener o crear la estadística
         $estadistica = Stadistic::firstOrNew([
@@ -88,5 +88,6 @@ class TestController extends Controller
 
         return redirect()->route('course', ['id' => $request->idCurso])
             ->with('message', 'Test guardado correctamente.');
-    }
+}
+
 }

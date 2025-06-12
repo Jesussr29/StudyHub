@@ -50,7 +50,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             </div>
 
 
-            <div className=" bg-[#02040b] w-full h-screen flex flex-col justify-center items-center lg:w-1/2">
+            <div className=" dark:bg-[#02040b] w-full h-screen flex flex-col justify-center items-center lg:w-1/2">
 
                 <div className='height-screen w-full flex flex-col justify-center items-center'>
 

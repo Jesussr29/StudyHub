@@ -11,9 +11,9 @@ import GoogleTranslate from '@/layouts/translate/traductor';
 import { faArrowRight, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useEffect, useState } from 'react';
-import { VscAccount, VscFolder, VscHome, VscLibrary, VscSettings } from 'react-icons/vsc';
+import { VscAccount, VscHome, VscLibrary, VscOrganization, VscSettingsGear } from 'react-icons/vsc';
 
-export default function MenuDesplegable() {
+export default function MenuDesplegable({ user }: Props) {
     const [activo, setActivo] = useState(false);
     const [menuAbierto, setMenuAbierto] = useState(false);
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('inicio');
@@ -21,17 +21,29 @@ export default function MenuDesplegable() {
     const items = [
         { label: 'Inicio', href: '#', onClick: () => setCategoriaSeleccionada('inicio') },
         { label: 'Mi academia', href: '#', onClick: () => setCategoriaSeleccionada('mi academia') },
-        { label: 'Recursos', href: '#', onClick: () => setCategoriaSeleccionada('recursos') },
     ];
+
+    if (user.rol === 'admin') {
+        items.push({ label: 'Admin', href: '#', onClick: () => setCategoriaSeleccionada('admin') });
+    }
+
+    const linkPerfil = () => {
+        window.location.href = '/profile';
+    };
 
     const items2 = [
         { icon: <VscHome size={18} />, label: 'Inicio', onClick: () => setCategoriaSeleccionada('inicio') },
         { icon: <VscLibrary size={18} />, label: 'Mi academia', onClick: () => setCategoriaSeleccionada('mi academia') },
-        { icon: <VscFolder size={18} />, label: 'Recursos', onClick: () => setCategoriaSeleccionada('recursos') },
-        { icon: <VscAccount size={18} />, label: 'Perfil', onClick: () => alert('Settings!') },
-        { icon: <VscSettings size={18} />, label: 'Ajustes', onClick: () => alert('Ajustes') },
+        { icon: <VscSettingsGear size={18} />, label: 'Ajustes', onClick: () => setDialogOpen(true) },
     ];
-    
+
+    if (user.rol === 'admin') {
+        items2.push({ icon: <VscOrganization size={18} />, label: 'Administrador', onClick: () => setCategoriaSeleccionada('admin') });
+    }
+
+    if (user.rol != 'admin') {
+        items2.push({ icon: <VscAccount size={18} />, label: 'Perfil', onClick: () => linkPerfil() });
+    }
 
     useEffect(() => {
         document.body.style.overflow = menuAbierto ? 'hidden' : 'auto';
@@ -49,11 +61,10 @@ export default function MenuDesplegable() {
                 <div className="flex items-center gap-2">
                     <a href="/home">
                         <img
-                        src="https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png"
-                        alt="Logo"
-                        className="h-15 w-auto"
-                        
-                    />
+                            src="https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png"
+                            alt="Logo"
+                            className="h-15 w-auto"
+                        />
                     </a>
                 </div>
 
@@ -106,57 +117,35 @@ export default function MenuDesplegable() {
                                 </a>
                             </h1>
 
-                            {/* Progreso de aprendizaje */}
+                            {/* Información general de la plataforma */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Progreso de aprendizaje</h2>
-                                <div className="h-4 w-full overflow-hidden rounded-full bg-gray-700">
-                                    <div className="h-full bg-green-500" style={{ width: '72%' }}></div>
-                                </div>
-                                <p className="text-primary mt-2 text-sm">72% completado del plan general</p>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">📘 ¿Qué es StudyHub?</h2>
+                                <p className="text-sm text-gray-800 dark:text-gray-300">
+                                    StudyHub es una plataforma de formación online diseñada para ayudarte a aprender de forma eficiente y
+                                    estructurada. Accede a cursos completos, realiza tests automáticos y lleva un seguimiento personalizado de tu
+                                    progreso.
+                                </p>
                             </div>
 
-                            {/* Cursos activos */}
+                            {/* Características destacadas */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-3 text-xl font-semibold">Cursos activos</h2>
-                                <ul className="space-y-3">
-                                    <li className="flex items-center justify-between">
-                                        <span>Introducción a PHP</span>
-                                        <button className="rounded-xl bg-green-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-green-700">
-                                            Continuar
-                                        </button>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>Laravel Intermedio</span>
-                                        <button className="rounded-xl bg-yellow-500 px-3 py-1 text-xs font-semibold text-black transition hover:bg-yellow-600">
-                                            Revisar
-                                        </button>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>React y Tailwind</span>
-                                        <button className="rounded-xl bg-purple-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-purple-700">
-                                            Empezar
-                                        </button>
-                                    </li>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">🚀 Características destacadas</h2>
+                                <ul className="list-disc space-y-1 pl-5 text-sm text-gray-800 dark:text-gray-300">
+                                    <li>Tests automáticos con corrección inmediata</li>
+                                    <li>Temas marcados como aprendidos</li>
+                                    <li>PDFs y material de apoyo descargables</li>
+                                    <li>Acceso a cursos gratuitos y de pago</li>
+                                    <li>Seguimiento personalizado del alumno</li>
                                 </ul>
                             </div>
 
-                            {/* Últimos tests realizados */}
+                            {/* ¿Cómo funciona? */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-3 text-xl font-semibold">Últimos Tests</h2>
-                                <ul className="space-y-2 text-sm">
-                                    <li className="flex justify-between">
-                                        <span>Test Fundamentos PHP</span>
-                                        <span className="font-bold text-green-400">85%</span>
-                                    </li>
-                                    <li className="flex justify-between">
-                                        <span>Test Routing en Laravel</span>
-                                        <span className="font-bold text-yellow-400">60%</span>
-                                    </li>
-                                    <li className="flex justify-between">
-                                        <span>Test Componentes React</span>
-                                        <span className="font-bold text-red-400">35%</span>
-                                    </li>
-                                </ul>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">🛠️ ¿Cómo funciona?</h2>
+                                <p className="text-sm text-gray-800 dark:text-gray-300">
+                                    Explora los cursos disponibles, elige el que te interese, y empieza a aprender a tu ritmo. Puedes realizar tests
+                                    al final de cada tema, guardar los errores para repasarlos y avanzar paso a paso en tu formación.
+                                </p>
                             </div>
                         </div>
                     )}
@@ -171,157 +160,76 @@ export default function MenuDesplegable() {
                                 </a>
                             </h1>
 
+                            {/* Información sobre los cursos */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Progreso General</h2>
-                                <div className="h-4 w-full overflow-hidden rounded-full bg-gray-700">
-                                    <div className="h-full bg-green-500" style={{ width: '65%' }}></div>
-                                </div>
-                                <p className="text-primary mt-2 text-sm">65% completado</p>
-                            </div>
-
-                            <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Mis Cursos</h2>
-                                <ul className="space-y-2">
-                                    <li className="flex items-center justify-between">
-                                        <span>Introducción a JavaScript</span>
-                                        <button className="text-sm text-blue-400 hover:underline">Continuar</button>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>HTML y CSS Básico</span>
-                                        <button className="text-sm text-blue-400 hover:underline">Revisar</button>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>React para Principiantes</span>
-                                        <button className="text-sm text-blue-400 hover:underline">Empezar</button>
-                                    </li>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">🎓 Tus Cursos en StudyHub</h2>
+                                <p className="text-sm text-gray-800 dark:text-gray-300">
+                                    Dentro de la sección de cursos podrás acceder a todos los contenidos disponibles organizados por tema y nivel.
+                                    Algunas de las funcionalidades que encontrarás:
+                                </p>
+                                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-800 dark:text-gray-300">
+                                    <li>Ver todos los cursos disponibles según tu rol</li>
+                                    <li>Realizar tests para poner a prueba tus conocimientos</li>
+                                    <li>Marcar tests como favoritos para repasarlos más tarde</li>
+                                    <li>Descargar las notas de tus tests en formato PDF</li>
+                                    <li>Seguir tu progreso y mejorar con cada intento</li>
                                 </ul>
                             </div>
-
+                            {/* Cómo empezar */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Últimos Tests</h2>
-                                <ul className="space-y-2">
-                                    <li className="flex justify-between">
-                                        <span>Test HTML</span>
-                                        <span className="font-bold text-green-400">80%</span>
-                                    </li>
-                                    <li className="flex justify-between">
-                                        <span>Test JavaScript</span>
-                                        <span className="font-bold text-yellow-400">65%</span>
-                                    </li>
-                                    <li className="flex justify-between">
-                                        <span>Test CSS</span>
-                                        <span className="font-bold text-red-400">40%</span>
-                                    </li>
-                                </ul>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">🚀 Empieza tu aprendizaje</h2>
+                                <p className="text-sm text-gray-800 dark:text-gray-300">
+                                    Explora los cursos activos, completa lecciones y pon a prueba tus conocimientos con nuestros tests. Tu progreso se
+                                    guarda automáticamente, y puedes retomar cuando quieras.
+                                </p>
                             </div>
                         </div>
                     )}
 
-                    {categoriaSeleccionada === 'recursos' && (
+                    {categoriaSeleccionada === 'admin' && (
                         <div className="text-primary h-[660px] space-y-6 overflow-y-auto pr-2">
                             <h1 className="flex items-center gap-3 text-3xl font-bold">
                                 <FontAwesomeIcon icon={faArrowRight} className="text-primary" />
-                                <a className="border-primary border-b-2 pb-1" href="google.es">
-                                    Recursos
+                                <a className="border-primary border-b-2 pb-1" href="/admin">
+                                    Administrador
                                 </a>
                             </h1>
 
+                            {/* Panel de administración */}
                             <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Documentos PDF</h2>
-                                <ul className="space-y-2">
-                                    <li className="flex items-center justify-between">
-                                        <span>Resumen de JavaScript</span>
-                                        <a href="/recursos/javascript.pdf" className="text-blue-400 hover:underline">
-                                            Descargar
-                                        </a>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>Guía HTML y CSS</span>
-                                        <a href="/recursos/html-css.pdf" className="text-blue-400 hover:underline">
-                                            Descargar
-                                        </a>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span>Tips de React</span>
-                                        <a href="/recursos/react-tips.pdf" className="text-blue-400 hover:underline">
-                                            Descargar
-                                        </a>
-                                    </li>
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">🔐 Zona del Administrador</h2>
+                                <p className="text-sm text-gray-800 dark:text-gray-300">
+                                    Desde este panel, el administrador tiene acceso completo para gestionar todos los recursos y usuarios de la
+                                    plataforma. Las funciones principales incluyen:
+                                </p>
+                                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-800 dark:text-gray-300">
+                                    <li>Gestionar y validar nuevos registros de profesores y alumnos</li>
+                                    <li>Subir y administrar documentos PDF y materiales didácticos</li>
+                                    <li>Editar o eliminar cursos disponibles en la plataforma</li>
+                                    <li>Revisar estadísticas generales de uso y rendimiento de los alumnos</li>
+                                    <li>Supervisar y aprobar preguntas y tests añadidos por los profesores</li>
+                                    <li>Controlar el acceso a los cursos</li>
                                 </ul>
                             </div>
 
-                            <div className="rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Videos Recomendados</h2>
-                                <ul className="space-y-2">
-                                    <li>
-                                        <a
-                                            href="https://www.youtube.com/watch?v=PkZNo7MFNFg"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            Curso JavaScript Básico (freeCodeCamp)
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="https://www.youtube.com/watch?v=1Rs2ND1ryYc"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            HTML y CSS en 1 Hora
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="https://www.youtube.com/watch?v=EMfFdv1wos4"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            React desde Cero
-                                        </a>
-                                    </li>
-                                </ul>
+                            {/* Recursos del Administrador */}
+                            <div className="mt-6 rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
+                                <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">📁 Recursos del Administrador</h2>
+                                <p className="mb-2 text-sm text-gray-800 dark:text-gray-300">
+                                    El panel de administrador cuenta con una zona exclusiva para la gestión avanzada de todos los recursos de la
+                                    plataforma. Esta sección está diseñada para asegurar una administración eficiente, organizada y segura del
+                                    contenido educativo.
+                                </p>
+                                <p className="mb-2 text-sm text-gray-800 dark:text-gray-300">
+                                    Desde aquí, los administradores pueden subir nuevos archivos PDF, editar documentos ya existentes y asignarlos a
+                                    cursos específicos o temas concretos. También pueden gestionar preguntas y tests creados por los profesores,
+                                    revisarlos, editarlos o eliminarlos en caso necesario.
+                                </p>
+                                <p className="mb-2 text-sm text-gray-800 dark:text-gray-300">
+                                    Todos los recursos están almacenados en un entorno protegido, con control de accesos basado en roles. Solo los
+                                    administradores autorizados pueden acceder, visualizar o modificar estos documentos.
+                                </p>
                             </div>
-
-                            <div className="mt-10 rounded-lg bg-gray-100 p-4 shadow dark:bg-[#1a1f2b]">
-                                <h2 className="mb-2 text-xl font-semibold">Herramientas Útiles</h2>
-                                <ul className="space-y-2">
-                                    <li>
-                                        <a
-                                            href="https://codepen.io/"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            CodePen
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="https://jsfiddle.net/"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            JSFiddle
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="https://devdocs.io/"
-                                            target="_blank"
-                                            className="text-blue-400 hover:underline"
-                                            rel="noopener noreferrer"
-                                        >
-                                            DevDocs
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <br />
                         </div>
                     )}
 
@@ -343,9 +251,9 @@ export default function MenuDesplegable() {
                         <Dock items={items2} panelHeight={68} baseItemSize={50} magnification={70} />
                     </div>
 
-                    <div className='flex items-center gap-2 mt-4 align-center p-2 rounded-lg text-white justify-center bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-200 transition-colors duration-300 mb-18 lg:mb-0'>
+                    <div className="align-center mt-4 mb-18 flex items-center justify-center gap-2 rounded-lg bg-gray-100 p-2 text-white transition-colors duration-300 hover:bg-gray-200 lg:mb-0 dark:bg-gray-800 dark:hover:bg-gray-700">
                         <GoogleTranslate />
-                        <p className='text-primary'>Ajustar idioma y desactivar para quitar barra de traducción</p>
+                        <p className="text-primary">Ajustar idioma y desactivar para quitar barra de traducción</p>
                         <label className="relative inline-flex cursor-pointer items-center">
                             <input type="checkbox" checked={activo} onChange={() => setActivo(!activo)} className="sr-only" />
                             <div
