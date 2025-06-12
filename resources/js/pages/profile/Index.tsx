@@ -91,6 +91,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
     const handleCrearTest = (e: React.FormEvent) => {
         e.preventDefault();
+        
 
         const preguntasFormateadas = formDataTest.preguntas.map((pregunta) => ({
             enunciado: pregunta.enunciado,
@@ -116,7 +117,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                 location.reload();
             },
         });
-
     };
 
     // CREAR CURSO
@@ -155,6 +155,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        cerrarModal();
 
         const data = new FormData();
         data.append('nombre', formData.nombre);
@@ -353,7 +354,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
-            <MenuDesplegable user={user} ></MenuDesplegable>
+            <MenuDesplegable user={user}></MenuDesplegable>
 
             {message && (
                 <div className="fixed top-4 right-4 z-50">
@@ -385,17 +386,20 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                             </p>
                         </div>
                     </div>
-                    <div className="max-w-full overflow-hidden text-xs overflow-ellipsis whitespace-nowrap text-gray-500 italic sm:text-sm dark:text-gray-400">
-                        Última actualización: {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                    <div className="flex max-w-full flex-col gap-5 text-xs text-gray-500 italic sm:flex-row sm:items-center sm:justify-between sm:text-sm dark:text-gray-400">
+                        <div className="overflow-hidden overflow-ellipsis whitespace-nowrap">
+                            Última actualización: {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : 'N/A'}
+                        </div>
+
                         <Link
-                            className="menu-item flex items-center rounded bg-white px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-500 hover:text-red-800"
+                            className="menu-item flex w-full items-center justify-center rounded bg-red-500 px-3 py-2 text-sm text-white transition-colors hover:bg-red-600 sm:w-auto"
                             method="post"
                             href={route('logout')}
                             as="button"
                             onClick={handleLogout}
                         >
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span className="font-medium">Cerrar sesión</span>
+                            <LogOut className="mr-2 h-4 w-4 text-white" />
+                            <span className="font-medium text-white">Cerrar sesión</span>
                         </Link>
                     </div>
                 </div>
@@ -526,6 +530,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                 <h4 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Crear Test</h4>
 
                                                 <form onSubmit={handleCrearTest} className="space-y-6">
+                                                    {/* Nombre del Test */}
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
                                                         <input
@@ -536,12 +541,14 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                             placeholder="Ej. Test de prueba"
                                                             className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
                                                             required
+                                                            minLength={3}
                                                         />
                                                     </div>
 
+                                                    {/* Duración */}
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                            Duracion del test (minutos)
+                                                            Duración del test (minutos)
                                                         </label>
                                                         <input
                                                             type="number"
@@ -550,9 +557,13 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                             value={formDataTest.duracionTest}
                                                             onChange={handleDuracionChange}
                                                             className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                            required
+                                                            min={1}
+                                                            max={300}
                                                         />
                                                     </div>
 
+                                                    {/* Número de preguntas */}
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Número de preguntas
@@ -561,16 +572,21 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                             type="number"
                                                             name="numeroPreguntasTest"
                                                             min={1}
+                                                            max={100}
                                                             value={numeroPreguntas}
                                                             onChange={(e) => {
                                                                 const nuevoNumero = parseInt(e.target.value);
-                                                                setNumeroPreguntas(nuevoNumero);
+                                                                if (!isNaN(nuevoNumero) && nuevoNumero > 0 && nuevoNumero <= 100) {
+                                                                    setNumeroPreguntas(nuevoNumero);
+                                                                }
                                                             }}
                                                             placeholder="Ej. 3"
                                                             className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
+                                                            required
                                                         />
                                                     </div>
 
+                                                    {/* Preguntas */}
                                                     {Array.from({ length: numeroPreguntas }).map((_, i) => (
                                                         <div key={i} className="space-y-2 rounded-lg border p-4 dark:border-gray-600">
                                                             <label className="text-sm font-medium text-gray-800 dark:text-gray-200">
@@ -583,6 +599,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                                 onChange={(e) => handlePreguntaChange(i, e.target.value)}
                                                                 className="w-full rounded-md border px-3 py-2 text-sm focus:ring-yellow-500 dark:bg-gray-700 dark:text-white"
                                                                 required
+                                                                minLength={5}
                                                             />
 
                                                             {[...Array(4)].map((_, j) => (
@@ -597,6 +614,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                                         onChange={(e) => handleRespuestaChange(i, j, e.target.value)}
                                                                         className="w-full bg-transparent text-sm dark:text-white"
                                                                         required
+                                                                        minLength={1}
                                                                     />
                                                                     <label className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                                                                         <input
@@ -614,6 +632,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         </div>
                                                     ))}
 
+                                                    {/* Botones */}
                                                     <div className="flex justify-end gap-2 pt-4">
                                                         <button
                                                             type="button"
@@ -640,9 +659,8 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                 <h4 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">Nuevo curso</h4>
 
                                                 <form className="space-y-4" onSubmit={handleSubmit} encType="multipart/form-data">
-                                                    {/* Nombre del curso */}
                                                     <div>
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre *</label>
                                                         <input
                                                             name="nombre"
                                                             value={formData.nombre}
@@ -654,7 +672,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         />
                                                     </div>
 
-                                                    {/* Descripción */}
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Descripción
@@ -666,11 +683,9 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                             rows={3}
                                                             placeholder="Breve descripción..."
                                                             className="mt-1 min-h-[80px] w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                                            required
                                                         />
                                                     </div>
 
-                                                    {/* Imagen */}
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             Imagen del curso
@@ -692,17 +707,17 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                            PDF del curso
+                                                            PDF del curso *
                                                         </label>
                                                         <input
                                                             type="file"
+                                                            required
                                                             accept=".pdf"
                                                             onChange={handlePdfChange}
                                                             className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-yellow-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-yellow-700 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                                                         />
                                                     </div>
 
-                                                    {/* Botones */}
                                                     <div className="mt-6 flex justify-end gap-2">
                                                         <button
                                                             type="button"
@@ -763,7 +778,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         onClick={(e) => {
                                                             e.stopPropagation(); // evitar que se abra el diálogo
                                                             router.get(`/profile/${curso.id}/editCourse`);
-
                                                         }}
                                                         className="absolute top-4 left-4 z-20 cursor-pointer rounded bg-yellow-600 px-3 py-1 text-xs font-semibold text-white hover:bg-yellow-700"
                                                     >

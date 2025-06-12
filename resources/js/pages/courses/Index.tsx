@@ -191,23 +191,26 @@ export default function Courses({ user, courses }: Props) {
                         {/* PAGINACIÓN FUERA DEL GRID */}
                         {totalPaginas > 1 && (
                             <div className="mt-10 flex w-full justify-center">
-                                <div className="bg-secondary bottom-0 left-0 z-40 w-full py-4 lg:static lg:py-0">
+                                <div className="bg-secondary bottom-0 left-0 z-40 w-full py-4 lg:static lg:py-0 ">
                                     <Pagination>
                                         <PaginationContent className="justify-center">
-                                            <PaginationItem>
+                                            <PaginationItem
+                                            className='cursor-pointer'>
                                                 <PaginationPrevious
                                                     onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
                                                     className={paginaActual === 1 ? 'pointer-events-none opacity-50' : ''}
                                                 />
                                             </PaginationItem>
                                             {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => (
-                                                <PaginationItem key={num}>
+                                                <PaginationItem key={num}
+                                                className='cursor-pointer'>
                                                     <PaginationLink onClick={() => setPaginaActual(num)} isActive={paginaActual === num}>
                                                         {num}
                                                     </PaginationLink>
                                                 </PaginationItem>
                                             ))}
-                                            <PaginationItem>
+                                            <PaginationItem
+                                            className='cursor-pointer'>
                                                 <PaginationNext
                                                     onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
                                                     className={paginaActual === totalPaginas ? 'pointer-events-none opacity-50' : ''}

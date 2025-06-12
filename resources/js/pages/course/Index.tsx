@@ -267,17 +267,6 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             {profesor.description ? profesor.description : 'El profesor aún no ha proporcionado una descripción.'}
                         </p>
 
-                        <div className="mt-5 flex justify-center gap-4">
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                🐦
-                            </a>
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                💼
-                            </a>
-                            <a href="#" className="text-xl text-purple-600 transition hover:text-purple-800">
-                                🔗
-                            </a>
-                        </div>
                     </div>
                 </div>
 

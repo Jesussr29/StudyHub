@@ -12,6 +12,20 @@ interface Props {
 }
 
 export default function Test({ test, questions, user }: Props) {
+    const [testEnviado, setTestEnviado] = useState(false);
+
+    // Evitar recarga solo mientras el test no esté enviado
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            if (!testEnviado) {
+                event.preventDefault();
+                event.returnValue = '¿Seguro que quieres salir? Se perderán los datos.';
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [testEnviado]);
+
     const [notaFinal, setNotaFinal] = useState<number | null>(null);
 
     // ESTO EVITA QUE SE CAMBIEN LAS PREGUNTAS CADA VEZ QUE SE ACTUALIZA EL COMPONENTE
@@ -37,7 +51,7 @@ export default function Test({ test, questions, user }: Props) {
     const [respuestas, setRespuestas] = useState<(number | null)[]>(Array(preguntas.length).fill(null));
     const [segundosRestantes, setSegundosRestantes] = useState(test.duration * 60);
     const [tiempoTerminado, setTiempoTerminado] = useState(false);
-    const [mostrarDialogo, setMostrarDialogo] = useState(false);
+    const [mostrarDialogo2, setMostrarDialogo2] = useState(false);
 
     const totalPreguntas = preguntas.length;
     const preguntasRespondidas = respuestas.filter((r) => r !== null).length;
@@ -52,10 +66,8 @@ export default function Test({ test, questions, user }: Props) {
                 if (prev <= 1) {
                     clearInterval(intervalo);
                     setTiempoTerminado(true);
-                    setMostrarDialogo(true);
-                    setTimeout(() => {
-                        window.location.href = `/course/${test.course_id}`;
-                    }, 5000);
+                    terminarTest();
+                    
                     return 0;
                 }
                 return prev - 1;
@@ -84,57 +96,50 @@ export default function Test({ test, questions, user }: Props) {
         setRespuestas(nuevasRespuestas);
     };
 
-    
     const terminarTest = () => {
-    let aciertos = 0;
-    let fallos = 0;
-    let noRespondidas = 0;
+        let aciertos = 0;
+        let fallos = 0;
+        let noRespondidas = 0;
 
-    respuestas.forEach((respuesta, i) => {
-        if (respuesta === null) {
-            noRespondidas++;
-        } else if (respuesta === preguntas[i].respuestaCorrecta) {
-            aciertos++;
-        } else {
-            fallos++;
-        }
-    });
+        respuestas.forEach((respuesta, i) => {
+            if (respuesta === null) {
+                noRespondidas++;
+            } else if (respuesta === preguntas[i].respuestaCorrecta) {
+                aciertos++;
+            } else {
+                fallos++;
+            }
+        });
 
-    const penalización = Math.floor(fallos / 3);
-    const aciertosFinales = Math.max(aciertos - penalización, 0);
-    let is_passed = 0;
+        const penalización = Math.floor(fallos / 3);
+        const aciertosFinales = Math.max(aciertos - penalización, 0);
+        let is_passed = 0;
 
-    const nota = (aciertosFinales / preguntas.length) * 10;
-    setNotaFinal(nota);
+        const nota = (aciertosFinales / preguntas.length) * 10;
+        setNotaFinal(nota);
+        setMostrarDialogo2(true);
 
-    // 👇 Usar FormData
-    const formData = new FormData();
-    formData.append("usuario_id", user.id);
-    formData.append("aciertos", aciertos.toString());
-    formData.append("fallos", fallos.toString());
-    formData.append("no_respondidas", noRespondidas.toString());
-    formData.append("nota", nota.toFixed(2));
-    formData.append("idCurso", test.course_id.toString());
-    formData.append("idTest", test.id.toString());
-
-    router.post("/test", formData);
-
-    alert(
-        `Test terminado.\n` +
-        `✔️ Correctas: ${aciertos}\n` +
-        `❌ Incorrectas: ${fallos}\n` +
-        `❓ No contestadas: ${noRespondidas}\n\n` +
-        `🧮 Penalización: -${penalización} aciertos\n` +
-        `📊 Nota final: ${nota.toFixed(2)}/10`
-    );
-};
+        setTimeout(() => {
+            // 👇 Usar FormData
+            const formData = new FormData();
+            formData.append('usuario_id', user.id);
+            formData.append('aciertos', aciertos.toString());
+            formData.append('fallos', fallos.toString());
+            formData.append('no_respondidas', noRespondidas.toString());
+            formData.append('nota', nota.toFixed(2));
+            formData.append('idCurso', test.course_id.toString());
+            formData.append('idTest', test.id.toString());
+            setTestEnviado(true);
+            router.post('/test', formData);
+        }, 5000);
 
 
+    };
 
     return (
         <>
             <header className="sticky top-0 z-50 shadow-md">
-                <MenuDesplegable />
+                <MenuDesplegable user={user}></MenuDesplegable>
             </header>
 
             <main className="mx-auto grid max-w-[90%] grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-3">
@@ -255,15 +260,16 @@ export default function Test({ test, questions, user }: Props) {
                 </aside>
             </main>
 
-            <Dialog open={mostrarDialogo} onOpenChange={setMostrarDialogo}>
+
+            <Dialog open={mostrarDialogo2} onOpenChange={setMostrarDialogo2}>
                 <DialogPortal>
                     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center">
                         <DialogOverlay className="fixed inset-0" />
                         <div className="z-50 w-full max-w-lg rounded-xl p-6 shadow-lg">
                             <div className="bg-opacity-60 fixed inset-0 z-50 flex items-center justify-center bg-black">
                                 <div className="bg-secondary mx-4 max-w-[%80] rounded-3xl p-10 text-center shadow-2xl">
-                                    <h2 className="text-primary mb-5 text-3xl font-bold">Tiempo agotado</h2>
-                                    <p className="text-primary/50 mb-8 text-lg">El tiempo para finalizar la prueba ha finalizado.</p>
+                                    <h2 className="text-primary mb-5 text-3xl font-bold">Has terminado tu test</h2>
+                                    <p className="text-primary/50 mb-8 text-lg">Podras ver tu nota en el pdf del test.</p>
                                     <div className="flex justify-center">
                                         <div className="animate-spin rounded-full border-4 border-white border-t-transparent p-4">
                                             {/* Logo SVG o ícono */}
