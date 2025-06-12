@@ -22,7 +22,8 @@ class StudentFactory extends Factory
         }
 
         return [
-            'user_id' => User::inRandomOrder()->value('id'),
+            'user_id' => User::where('rol', 'student')->inRandomOrder()->value('id') 
+             ?? User::factory()->create(['rol' => 'student'])->id,
             'course_id' => Course::inRandomOrder()->value('id'),
             'enrollment_date' => $this->faker->date(),
             'completion_date' => $completionDate,

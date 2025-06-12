@@ -11,21 +11,49 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TestEvaluationFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
+        $student = Student::inRandomOrder()->first();
+
+        if (!$student) {
+            return [];
+        }
+
+        $test = $student->course_id
+            ? Test::where('course_id', $student->course_id)->inRandomOrder()->first()
+            : null;
+
+        if (!$test && $student->course_id) {
+            $test = Test::factory()->create(['course_id' => $student->course_id]);
+        }
+
+        if (!$test) {
+            return [];
+        }
+
+        $totalQuestions = $test->number_of_questions ?? $this->faker->numberBetween(10, 50);
+
+        $correctAnswers = $this->faker->numberBetween(0, $totalQuestions);
+
+        $remaining = $totalQuestions - $correctAnswers;
+
+        $incorrectAnswers = $this->faker->numberBetween(0, $remaining);
+
+        $unansweredQuestions = $totalQuestions - $correctAnswers - $incorrectAnswers;
+
+        $rawScore = $correctAnswers - ($incorrectAnswers * (1/3));
+        $normalizedScore = max(0, min(10, round(($rawScore / $totalQuestions) * 10, 2)));
+
+        $isPassed = $normalizedScore >= 6;
+
         return [
-            'student_id' => Student::inRandomOrder()->value('id'),
-            'test_id' => Test::inRandomOrder()->value('id'),
-            'correct_answers' => $this->faker->numberBetween(0, 10),
-            'incorrect_answers' => $this->faker->numberBetween(0, 10),
-            'unanswered_questions' => $this->faker->numberBetween(0, 10),
-            'score' => $this->faker->numberBetween(0, 10),
-            'is_passed' => $this->faker->boolean(),
+            'student_id' => $student->id,
+            'test_id' => $test->id,
+            'correct_answers' => $correctAnswers,
+            'incorrect_answers' => $incorrectAnswers,
+            'unanswered_questions' => $unansweredQuestions,
+            'score' => $normalizedScore,
+            'is_passed' => $isPassed,
             'created_at' => now(),
             'updated_at' => now(),
         ];

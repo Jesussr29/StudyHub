@@ -18,6 +18,8 @@ export default function CreateUser({ rol }: Props) {
   const [imagePreview, setImagePreview] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -36,8 +38,49 @@ export default function CreateUser({ rol }: Props) {
     }
   };
 
+  const validateEmail = (email: string) => {
+    // Simple email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'El nombre es obligatorio.';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'El email es obligatorio.';
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = 'El email no es válido.';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'La contraseña es obligatoria.';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    }
+
+    // Imagen (opcional) pero si existe, validar tipo y tamaño
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        newErrors.image = 'El archivo debe ser una imagen válida.';
+      } else if (file.size > 5 * 1024 * 1024) {
+        newErrors.image = 'La imagen debe pesar menos de 5MB.';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
 
     const data = new FormData();
     data.append('name', formData.name);
@@ -62,7 +105,7 @@ export default function CreateUser({ rol }: Props) {
         ➕ Crear {rol === 'student' ? 'Estudiante' : 'Profesor'}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
+      <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data" noValidate>
         {/* Nombre */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200">Nombre</label>
@@ -71,9 +114,12 @@ export default function CreateUser({ rol }: Props) {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 dark:bg-[#1E293B] dark:text-white ${
+              errors.name ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
         </div>
 
         {/* Email */}
@@ -84,9 +130,12 @@ export default function CreateUser({ rol }: Props) {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 dark:bg-[#1E293B] dark:text-white ${
+              errors.email ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
         </div>
 
         {/* Password */}
@@ -97,9 +146,12 @@ export default function CreateUser({ rol }: Props) {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 dark:bg-[#1E293B] dark:text-white ${
+              errors.password ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
         </div>
 
         {/* Descripción */}
@@ -110,7 +162,7 @@ export default function CreateUser({ rol }: Props) {
             value={formData.description}
             onChange={handleChange}
             rows={4}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className="w-full mt-1 rounded-lg border p-3 dark:bg-[#1E293B] dark:text-white"
           />
         </div>
 
@@ -124,13 +176,15 @@ export default function CreateUser({ rol }: Props) {
               className="h-24 w-24 rounded-full object-cover shadow mb-3"
             />
           )}
-
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="block w-full rounded-lg border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
+            className={`block w-full rounded-lg border p-2 dark:bg-[#1E293B] dark:text-white ${
+              errors.image ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
+          {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
         </div>
 
         {/* ¿Baneado? */}

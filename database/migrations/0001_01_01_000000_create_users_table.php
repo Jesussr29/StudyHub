@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('rol')->default('user'); 
             $table->string('description')->nullable(); 
-            $table->boolean('isBanned')->default(true); 
+            $table->boolean('isBanned')->default(false); 
             $table->string('image')->nullable();
             $table->rememberToken();
             $table->timestamps();

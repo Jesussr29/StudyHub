@@ -10,7 +10,7 @@ class HomeController extends Controller
 {
 	public function index(){
 
-        $cursos = Course::all();
+        $cursos = Course::all()->shuffle();
 
         
         return inertia('home/Index', [

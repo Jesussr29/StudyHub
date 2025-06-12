@@ -7,7 +7,6 @@ interface Props {
     name: string;
     email: string;
     description?: string;
-    isBanned: boolean;
     image?: string;
   };
 }
@@ -17,23 +16,38 @@ export default function EditUser({ user }: Props) {
     name: user.name,
     email: user.email,
     description: user.description || '',
-    isBanned: user.isBanned,
   });
 
-  // Construye URL completa para la imagen si existe
-  const initialImageUrl = user.image ? `${window.location.origin}/${user.image}` : '';
-
-  const [imagePreview, setImagePreview] = useState(initialImageUrl);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [imagePreview, setImagePreview] = useState(user.image ? `${window.location.origin}/${user.image}` : '');
   const [file, setFile] = useState<File | null>(null);
 
+  const validate = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio.';
+    else if (formData.name.length < 2) newErrors.name = 'Debe tener al menos 2 caracteres.';
+
+    if (!formData.email.trim()) newErrors.email = 'El correo electrónico es obligatorio.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Formato de correo inválido.';
+
+    if (formData.description.length > 500) newErrors.description = 'Máximo 500 caracteres.';
+
+    if (file) {
+      if (!file.type.startsWith('image/')) newErrors.image = 'El archivo debe ser una imagen.';
+      if (file.size > 5 * 1024 * 1024) newErrors.image = 'La imagen debe pesar menos de 5MB.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: '' })); // Clear individual error
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,32 +55,27 @@ export default function EditUser({ user }: Props) {
     if (selected) {
       setFile(selected);
       setImagePreview(URL.createObjectURL(selected));
+      setErrors(prev => ({ ...prev, image: '' }));
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
 
     const data = new FormData();
     data.append('name', formData.name);
     data.append('email', formData.email);
     data.append('description', formData.description);
-
-    if (file) {
-      data.append('image', file);
-    }
-
+    if (file) data.append('image', file);
     data.append('_method', 'PUT');
 
-    router.post(`/profile/update`, data, {
-      preserveScroll: true,
-      
-    });
+    router.post(`/profile/update`, data, { preserveScroll: true });
   };
 
   return (
     <section className="mx-auto mt-10 max-w-3xl rounded-xl bg-gray-100 p-8 shadow-lg dark:bg-[#101828]">
-      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">✏️ Editar Usuario</h2>
+      <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">✏️ Editar Perfil</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
         {/* Nombre */}
@@ -77,9 +86,12 @@ export default function EditUser({ user }: Props) {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white ${
+              errors.name ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
         </div>
 
         {/* Email */}
@@ -90,9 +102,12 @@ export default function EditUser({ user }: Props) {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white ${
+              errors.email ? 'border-red-500' : 'border-gray-300'
+            }`}
             required
           />
+          {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
         </div>
 
         {/* Descripción */}
@@ -103,8 +118,11 @@ export default function EditUser({ user }: Props) {
             value={formData.description}
             onChange={handleChange}
             rows={4}
-            className="w-full mt-1 rounded-lg border border-gray-300 p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
+            className={`w-full mt-1 rounded-lg border p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white ${
+              errors.description ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
+          {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
         </div>
 
         {/* Imagen */}
@@ -118,23 +136,22 @@ export default function EditUser({ user }: Props) {
             />
           )}
 
-          {/* NOTA: input type file NO puede tener value por seguridad */}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
-            className="block w-full rounded-lg border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
+            className={`block w-full rounded-lg border p-2 dark:bg-[#1E293B] dark:text-white ${
+              errors.image ? 'border-red-500' : 'border-gray-300'
+            }`}
           />
+          {errors.image && <p className="mt-1 text-sm text-red-600">{errors.image}</p>}
 
-          {/* Mostrar la ruta de la imagen actual (opcional) */}
           {user.image && !file && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Imagen actual: <code>{user.image}</code>
             </p>
           )}
         </div>
-
-       
 
         {/* Botón */}
         <div className="flex justify-end">

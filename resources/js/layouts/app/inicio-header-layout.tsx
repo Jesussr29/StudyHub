@@ -42,7 +42,7 @@ export default function MenuDesplegable() {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     return (
-        <header className="relative text-white shadow-md dark:bg-[#02040b]">
+        <header className="relative text-white shadow-md bg-white dark:bg-[#02040b]">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
             <nav className="mx-auto flex w-full max-w-[90%] items-center justify-between p-4">
                 {/* Izquierda: Logo */}

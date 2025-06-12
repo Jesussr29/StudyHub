@@ -20,10 +20,12 @@ class CourseFactory extends Factory
         return [
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph,
-            'duration' => $this->faker->numberBetween(1, 52), 
+            'duration' => 0, 
             'image' => 'null',
             'pdf' => 'null',
-            'teacher_id' => User::factory()->create()->id,
+            'teacher_id' => User::where('rol', 'teacher')->inRandomOrder()->first()?->id ?? 
+                User::factory()->create(['rol' => 'teacher'])->id,
+
         ];
     }
 }

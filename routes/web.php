@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
         return Inertia::render('auth/register');
     })->name('register');
 
-    Route::get('/welcome', function () {
+    Route::get('/', function () {
         return Inertia::render('welcome/Index');
     })->name('welcome');
 
@@ -32,10 +32,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
-
+   
     Route::get('/courses', function () {
         return Inertia::render('courses/Index');
     })->name('courses');
@@ -72,6 +69,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
         $controller = app(AdminController::class);
         return $controller->deleteCourse($id);
+    });
+
+    Route::delete('/admin/{id}/test', function ($id) {
+        abort_unless(auth()->check() && auth()->user()->rol === 'admin', 403);
+        $controller = app(AdminController::class);
+        return $controller->deleteTest($id);
     });
 
     Route::get('/admin/{id}/editUser', function ($id) {

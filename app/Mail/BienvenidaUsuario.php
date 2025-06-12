@@ -10,17 +10,17 @@ class BienvenidaUsuario extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $usuario;
+    public $user;
 
-    public function __construct($usuario)
+    public function __construct($user)
     {
-        $this->usuario = $usuario;
+        $this->user = $user;
     }
 
     public function build()
-    {
-        return $this
-        ->subject('Bienvenido')
-        ->html("<p>Hola {$this->usuario->name}, bienvenido a la plataforma.</p>");
-    }
+{
+    return $this->view('emails.bienvenida')
+                ->with(['user' => $this->user])
+                ->subject('Bienvenida');
+}
 }

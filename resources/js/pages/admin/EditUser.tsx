@@ -64,7 +64,6 @@ export default function EditUser({ user }: Props) {
 
     router.post(`/admin/${user.id}/updateUser`, data, {
       preserveScroll: true,
-      
     });
   };
 
@@ -109,8 +108,8 @@ export default function EditUser({ user }: Props) {
             className="w-full mt-1 rounded-lg border border-gray-300 bg-white p-3 text-gray-900 focus:ring-2 focus:ring-purple-500 dark:bg-[#1E293B] dark:text-white"
             disabled
           >
-            <option value="student">Estudiante</option>
-            <option value="teacher">Profesor</option>
+            <option value="user">Estudiante</option>
+            <option value="profesor">Profesor</option>
           </select>
         </div>
 
@@ -137,7 +136,6 @@ export default function EditUser({ user }: Props) {
             />
           )}
 
-          {/* NOTA: input type file NO puede tener value por seguridad */}
           <input
             type="file"
             accept="image/*"
@@ -145,7 +143,6 @@ export default function EditUser({ user }: Props) {
             className="block w-full rounded-lg border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
 
-          {/* Mostrar la ruta de la imagen actual (opcional) */}
           {user.image && !file && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Imagen actual: <code>{user.image}</code>
