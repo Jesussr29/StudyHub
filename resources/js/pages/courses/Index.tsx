@@ -104,7 +104,7 @@ export default function Courses({ user, courses }: Props) {
     return (
         <>
             <header className="bg-secondary sticky top-0 z-50 h-auto">
-                <MenuDesplegable />
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
 
             <main className="bg-secondary min-h-screen px-4 py-10 md:px-10 lg:px-20">

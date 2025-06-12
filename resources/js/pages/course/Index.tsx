@@ -98,7 +98,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         <>
             <Head title={course.name} />
             <header className="bg-secondary sticky top-0 z-50 shadow">
-                <MenuDesplegable />
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
             {message && (
                 <div className="fixed top-4 right-4 z-50">

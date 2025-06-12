@@ -117,7 +117,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
             },
         });
 
-
     };
 
     // CREAR CURSO
@@ -354,7 +353,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
     return (
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
-            <MenuDesplegable />
+            <MenuDesplegable user={user} ></MenuDesplegable>
 
             {message && (
                 <div className="fixed top-4 right-4 z-50">

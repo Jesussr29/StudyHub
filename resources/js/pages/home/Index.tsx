@@ -74,7 +74,7 @@ const cursos = courses.slice(0, 3).map((curso, i) => ({
     return (
         <>
             <header className="sticky top-0 z-50">
-                <MenuDesplegable></MenuDesplegable>
+                <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
 
             {/* CONTENIDO */}
