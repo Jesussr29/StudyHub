@@ -20,7 +20,7 @@ public function guardar(Request $request)
         'aciertos' => 'required|integer',
         'fallos' => 'required|integer',
         'no_respondidas' => 'required|integer',
-        'nota' => 'required|numeric',
+        'nota' => 'required',
         'idCurso' => 'required|string|exists:courses,id',
         'idTest' => 'required|string|exists:tests,id',
     ]);
@@ -40,15 +40,17 @@ public function guardar(Request $request)
                   ->delete();
 
     // Crear la nueva evaluación
-    TestEvaluation::create([
-        'student_id' => $estudiante->id,
-        'correct_answers' => $request->aciertos,
-        'incorrect_answers' => $request->fallos,
-        'unanswered_questions' => $request->no_respondidas,
-        'nota' => $request->nota,
-        'is_passed' => $request->nota >= 5,
-        'test_id' => $request->idTest,
-    ]);
+
+    $testEvaluation = new TestEvaluation();
+    $testEvaluation->student_id = $estudiante->id;
+    $testEvaluation->correct_answers = $request->aciertos;
+    $testEvaluation->incorrect_answers = $request->fallos;
+    $testEvaluation->unanswered_questions = $request->no_respondidas;
+    $testEvaluation->score = $request->nota;
+    $testEvaluation->is_passed = $request->nota >= 5;
+    $testEvaluation->test_id = $request->idTest;
+
+    $testEvaluation->save();
 
     // Obtener o crear la estadística
     $estadistica = Stadistic::firstOrNew([

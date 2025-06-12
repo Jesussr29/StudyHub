@@ -22,6 +22,7 @@ class TestPdf extends Controller
             ->where('test_id', $test_id)
             ->first();
 
+
         // Pasa los datos a la vista
         $pdf = Pdf::loadView('pdf.ejemplo', [
             'usuario' => $usuario,

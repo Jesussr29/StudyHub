@@ -115,6 +115,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
     Route::get('/test/{student_id}/{test_id}', [TestPdf::class, 'generarPdf'])->name('test');
     Route::get('/ver-pdf', [TestPdf::class, 'verPDF']);
+    Route::post('/profile/createCourse', [ProfileController::class, 'createCourse'])->name('createCourse');
+    Route::post('/profile/createTest', [ProfileController::class, 'createTest'])->name('createTest');
+
 
 
 });
