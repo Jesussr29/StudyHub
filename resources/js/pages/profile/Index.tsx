@@ -9,7 +9,7 @@ import { BookMarked, BookOpenCheck, CalendarDays, Mail, Phone, Settings, ShieldC
 
 import InputError from '@/components/input-error';
 import { Transition } from '@headlessui/react';
-import { useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 import { Cell, Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -353,6 +353,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
     }, [flash?.message]);
 
     return (
+        
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
             <MenuDesplegable user={user}></MenuDesplegable>
 

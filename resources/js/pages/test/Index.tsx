@@ -1,6 +1,6 @@
 import { Dialog } from '@/components/ui/dialog';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { DialogOverlay, DialogPortal } from '@radix-ui/react-dialog';
 import 'aos/dist/aos.css';
 import { useEffect, useMemo, useState } from 'react';
@@ -138,6 +138,7 @@ export default function Test({ test, questions, user }: Props) {
 
     return (
         <>
+        <Head title="Test" />
             <header className="sticky top-0 z-50 shadow-md">
                 <MenuDesplegable user={user}></MenuDesplegable>
             </header>

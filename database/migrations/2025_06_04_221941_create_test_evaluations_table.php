@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('correct_answers')->default(0);
             $table->integer('incorrect_answers')->default(0);
             $table->integer('unanswered_questions')->default(0);
-            $table->decimal('score',4,2)->default(0);
+            $table->decimal('score', 4, 2)->default(0);
             $table->boolean('is_passed')->default(false);
             $table->timestamps();
         });

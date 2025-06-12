@@ -1,7 +1,8 @@
 import RotatingText from '@/components/reactBits/RotatingText/RotatingText';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import Footer from '@/layouts/app/footer-layout';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import 'aos/dist/aos.css';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -90,25 +91,26 @@ export default function Courses({ user, courses }: Props) {
     }, [ordenDuracion, ordenFecha, ordenRating, soloFavoritos, ratingFiltro, courses]);
 
     const [paginaActual, setPaginaActual] = useState(1);
-    const cursosPorPagina = 10;
+    const cursosPorPagina = 12;
 
-    // Calcular índices
     const indiceInicio = (paginaActual - 1) * cursosPorPagina;
     const indiceFinal = indiceInicio + cursosPorPagina;
 
-    // Cortar los cursos que se van a mostrar
     const cursosPaginados = cursosFiltrados.slice(indiceInicio, indiceFinal);
 
     const totalPaginas = Math.ceil(cursosFiltrados.length / cursosPorPagina);
 
+    console.log(courses);
+
     return (
         <>
+            <Head title="Cursos" />
             <header className="bg-secondary sticky top-0 z-50 h-auto">
                 <MenuDesplegable user={user} ></MenuDesplegable>
             </header>
 
             <main className="bg-secondary min-h-screen px-4 py-10 md:px-10 lg:px-20">
-                <h1 className="mb-8 text-3xl font-bold text-white">¡Ponte en marcha y comienza tu curso!</h1>
+                <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">¡Ponte en marcha y comienza tu curso!</h1>
 
                 {mostrar && (
                     <div className="mb-8 flex flex-col items-center text-2xl sm:flex-row sm:items-center sm:text-3xl">
@@ -148,7 +150,7 @@ export default function Courses({ user, courses }: Props) {
                                 >
                                     <img
                                         src={
-                                            curso.image !== 'null'
+                                            curso.image !== 'null' && curso.image !== null
                                                 ? `/${curso.image}`
                                                 : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'
                                         }
@@ -297,6 +299,8 @@ export default function Courses({ user, courses }: Props) {
                     </aside>
                 </div>
             </main>
+
+            <Footer></Footer>
         </>
     );
 }

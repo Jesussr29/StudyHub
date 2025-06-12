@@ -5,7 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Head, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-import { Star } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Footer from '@/layouts/app/footer-layout';
+import { Star, Trash2, User2 } from 'lucide-react';
 
 interface Props {
     course: any;
@@ -96,7 +98,23 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         });
     };
 
-    console.log(rating);
+    const handleDeleteTest = (id: string) => {
+        if (confirm('¿Estás seguro de que deseas eliminar este test?')) {
+            router.delete(`/admin/${id}/test`, {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    const handleDeleteCourse = (id: string) => {
+        if (confirm('¿Estás seguro de que deseas eliminar este curso?')) {
+            router.delete(`/admin/${id}/course`, {
+                preserveScroll: true,
+            });
+        }
+    };
+
+    console.log(student);
 
     return (
         <>
@@ -119,42 +137,51 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
             <main className="dark:bg-secondary min-h-screen bg-white from-white to-gray-100 p-6">
                 <div className="mx-auto grid max-w-[95%] items-start gap-6 md:grid-cols-3">
                     {/* Card del curso */}
-                    <div className="text-primary relative flex h-full flex-col justify-center overflow-hidden rounded-xl bg-gray-100 p-8 shadow-lg md:col-span-2 dark:bg-[#101828]">
-                        <div className="flex flex-row justify-end gap-3">
-                            <div className="text-secondary top-6 right-6 hidden rounded-lg bg-indigo-700 px-4 py-1 text-sm font-semibold shadow lg:block dark:text-white">
+                    <div className="relative flex h-full flex-col justify-center rounded-xl bg-gray-100 p-6 shadow-lg md:col-span-2 md:p-8 dark:bg-[#101828]">
+                        {/* Top right badge + star favorite */}
+                        <div className="mb-4 flex justify-end gap-3">
+                            <div className="hidden rounded-lg bg-indigo-700 px-3 py-1 text-sm font-semibold text-white shadow lg:block">
                                 🎓 Comienza tu aprendizaje
                             </div>
                             {isFavorite && (
-                                <div className="">
-                                    <span className="text-xl">⭐️</span>
+                                <div className="flex items-center text-xl">
+                                    <span>⭐️</span>
                                 </div>
+                            )}
+
+                            {user.rol == 'admin' && (
+                                <Button variant="destructive" size="icon" onClick={() => handleDeleteCourse(course.id)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
                             )}
                         </div>
 
-                        <h1 className="mb-2 text-4xl font-bold">{course.name}</h1>
-                        <div className="mb-4 flex items-center space-x-2">
-                            <span className="text-xl text-yellow-400">{courseRating.media}</span>
-                            <div className="text-m flex items-center text-yellow-500">
+                        {/* Course title */}
+                        <h1 className="mb-3 text-3xl leading-tight font-bold sm:text-4xl">{course.name}</h1>
+
+                        {/* Rating and buttons */}
+                        <div className="mb-6 flex flex-wrap items-center gap-4 text-yellow-400">
+                            <span className="text-xl font-semibold">{courseRating.media.toFixed(1)}</span>
+                            <div className="flex space-x-1 text-yellow-500">
                                 {Array.from({ length: 5 }).map((_, index) => {
                                     const fullStars = Math.floor(courseRating.media);
                                     const hasHalfStar = courseRating.media - fullStars >= 0.5;
-
                                     if (index < fullStars) {
                                         return (
-                                            <span key={index}>
-                                                <i className="fas fa-star"></i>{' '}
+                                            <span key={index} aria-hidden="true">
+                                                <i className="fas fa-star"></i>
                                             </span>
                                         );
                                     } else if (index === fullStars && hasHalfStar) {
                                         return (
-                                            <span key={index}>
-                                                <i className="fas fa-star-half-alt"></i>{' '}
+                                            <span key={index} aria-hidden="true">
+                                                <i className="fas fa-star-half-alt"></i>
                                             </span>
                                         );
                                     } else {
                                         return (
-                                            <span key={index}>
-                                                <i className="far fa-star"></i>{' '}
+                                            <span key={index} aria-hidden="true">
+                                                <i className="far fa-star"></i>
                                             </span>
                                         );
                                     }
@@ -162,11 +189,12 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             </div>
                             <span className="text-primary/80 notranslate mt-1 text-sm">({courseRating.total})</span>
 
+                            {/* Valorar button only if matriculado */}
                             {matriculado && (
                                 <Dialog open={open} onOpenChange={setOpen}>
                                     <DialogTrigger asChild>
-                                        <button className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 px-3 py-1.5 text-white shadow-lg transition-transform hover:scale-103 hover:shadow-xl active:scale-95">
-                                            <i className="fas fa-star text-yellow-500"></i>Valorar
+                                        <button className="ml-auto inline-flex cursor-pointer items-center gap-2 rounded-full bg-gradient-to-r from-pink-500 to-red-500 px-4 py-1.5 text-white shadow-lg transition-transform hover:scale-105 hover:shadow-xl active:scale-95">
+                                            <i className="fas fa-star text-yellow-400"></i> Valorar
                                         </button>
                                     </DialogTrigger>
 
@@ -201,9 +229,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                                 Cancelar
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    handleRating(course.id);
-                                                }}
+                                                onClick={() => handleRating(course.id)}
                                                 disabled={userRating === 0}
                                                 className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-md transition ${
                                                     userRating > 0 ? 'bg-pink-600 hover:bg-pink-700' : 'cursor-not-allowed bg-pink-300'
@@ -216,8 +242,9 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                 </Dialog>
                             )}
                         </div>
+
                         <p className="text-primary/80 mb-6">{course.description}</p>
-                        <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>
+                        <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)}</p>
 
                         <div className="flex space-x-4">
                             {user.rol !== 'teacher' && user.rol !== 'admin' && (
@@ -261,14 +288,14 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             )}
                             {isFavorite ? (
                                 <button
-                                    className="cursor-pointer rounded-lg border border-red-400 px-6 py-2 font-semibold text-red-400 transition duration-300 hover:bg-red-900 hover:text-white"
+                                    className="max-w-[200px] flex-1 cursor-pointer rounded-lg border border-red-400 px-6 py-2 font-semibold text-red-400 transition duration-300 hover:bg-red-900 hover:text-white sm:flex-auto"
                                     onClick={() => handleFavorite(user.id, course.id)}
                                 >
                                     Quitar de favoritos
                                 </button>
                             ) : (
                                 <button
-                                    className="cursor-pointer rounded-lg border border-purple-400 px-6 py-2 font-semibold text-purple-400 transition duration-300 hover:bg-purple-900 hover:text-white"
+                                    className="max-w-[200px] flex-1 cursor-pointer rounded-lg border border-purple-400 px-6 py-2 font-semibold text-purple-400 transition duration-300 hover:bg-purple-900 hover:text-white sm:flex-auto"
                                     onClick={() => handleFavorite(user.id, course.id)}
                                 >
                                     Añadir a favoritos
@@ -280,11 +307,15 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                     {/* Instructor */}
                     <div className="flex h-full flex-col items-center justify-center rounded-xl bg-[#f3f4f6] p-6 text-center shadow-lg dark:bg-[#101828]">
                         <div className="relative">
-                            <img
-                                src={`/${profesor.image}`}
-                                alt="Foto del instructor"
-                                className="h-32 w-32 rounded-full border-4 border-purple-500 object-cover shadow-md"
-                            />
+                            {profesor.image !== null ? (
+                                <img
+                                    src={`/${profesor.image}`}
+                                    alt="Foto del instructor"
+                                    className="h-32 w-32 rounded-full border-4 border-purple-500 object-cover shadow-md"
+                                />
+                            ) : (
+                                <User2 className="h-32 w-32 rounded-full border-4 border-purple-500 object-cover shadow-md" />
+                            )}
                             <span className="absolute right-0 bottom-0 h-5 w-5 animate-pulse rounded-full border-2 border-white bg-green-500 dark:border-[#101828]" />
                         </div>
 
@@ -297,7 +328,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                     </div>
                 </div>
 
-                {matriculado ? (
+                {matriculado || user.rol == 'teacher' || user.rol == 'admin' ? (
                     <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
                         <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
                             📚 Temario
@@ -332,17 +363,25 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                                 <a
                                                     onClick={() => linkPdf(student.id, test.id)}
                                                     className="cursor-pointer rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
+                                                    className="cursor-pointer rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
                                                 >
                                                     📄 Descargar PDF
                                                 </a>
                                             )}
+                                            {user.rol !== 'teacher' && user.rol !== 'admin' && (
+                                                <a
+                                                    onClick={() => linkTest(test.id)}
+                                                    className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
+                                                >
+                                                    🧠 Empezar Test
+                                                </a>
+                                            )}
 
-                                            <a
-                                                onClick={() => linkTest(test.id)}
-                                                className="cursor-pointer rounded-lg bg-green-600 px-4 py-2 text-sm text-white transition hover:bg-green-700"
-                                            >
-                                                🧠 Empezar Test
-                                            </a>
+                                            {user.rol !== 'student' && (
+                                                <Button variant="destructive" size="icon" onClick={() => handleDeleteTest(test.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </li>
                                 ))
@@ -360,6 +399,8 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                     </section>
                 )}
             </main>
+
+            <Footer></Footer>
         </>
     );
 }

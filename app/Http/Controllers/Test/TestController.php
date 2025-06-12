@@ -17,6 +17,9 @@ class TestController extends Controller
     public function guardar(Request $request)
     {
         $request->validate([
+    public function guardar(Request $request)
+    {
+        $request->validate([
             'usuario_id' => 'required|string|exists:users,id',
             'aciertos' => 'required|integer',
             'fallos' => 'required|integer',
@@ -46,7 +49,16 @@ class TestController extends Controller
         $testEvaluation->score = $request->nota;
         $testEvaluation->is_passed = $request->nota >= 5;
         $testEvaluation->test_id = $request->idTest;
+        $testEvaluation = new TestEvaluation();
+        $testEvaluation->student_id = $estudiante->id;
+        $testEvaluation->correct_answers = $request->aciertos;
+        $testEvaluation->incorrect_answers = $request->fallos;
+        $testEvaluation->unanswered_questions = $request->no_respondidas;
+        $testEvaluation->score = $request->nota;
+        $testEvaluation->is_passed = $request->nota >= 5;
+        $testEvaluation->test_id = $request->idTest;
 
+        $testEvaluation->save();
         $testEvaluation->save();
 
         // Obtener o crear la estadística
@@ -66,13 +78,13 @@ class TestController extends Controller
         $estadistica->save();
         $testsDelCurso = Test::where('course_id', $request->idCurso)->pluck('id')->toArray();
 
-        $evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
-            ->whereIn('test_id', $testsDelCurso)
-            ->get();
+$evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
+    ->whereIn('test_id', $testsDelCurso)
+    ->get();
 
-        $testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
+$testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
 
-        $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
+$completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
 
         $evaluacionesAprobadas = $evaluaciones->filter(function ($eval) {
             return $eval->score >= 5;
@@ -94,5 +106,6 @@ class TestController extends Controller
 
         return redirect()->route('course', ['id' => $request->idCurso])
             ->with('message', 'Test guardado correctamente.');
+    }
     }
 }

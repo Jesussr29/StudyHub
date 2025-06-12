@@ -19,7 +19,6 @@ class CoursesController extends Controller
     $cursos->transform(function ($curso) use ($favoritos, $usuario) {
         $curso->is_favorite = in_array($curso->id, $favoritos);
 
-        // Media de rating para el curso
         $ratingsCurso = Rating::where('course_id', $curso->id);
         $count = $ratingsCurso->count();
         $average = $count > 0 ? round($ratingsCurso->avg('rating'), 1) : 0.0;

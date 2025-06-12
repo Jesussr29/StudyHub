@@ -29,11 +29,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+         $request->authenticate();
 
-        $request->session()->regenerate();
+    $user = Auth::user();
 
-       return redirect(route('home'));
+    if ($user->isBanned) {
+        Auth::guard('web')->logout();
+        return redirect()->route('login')->withErrors(['email' => 'Tu cuenta está baneada.']);
+    }
+
+    $request->session()->regenerate();
+
+    return redirect(route('home'));
 
     }
 

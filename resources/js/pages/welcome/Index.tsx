@@ -6,6 +6,7 @@ import RotatingText from '@/components/reactBits/RotatingText/RotatingText';
 import { Head } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import './css/welcome.css';
+import Footer from '@/layouts/app/footer-layout';
 
 export default function Index() {
     const [loading, setLoading] = useState(true);
@@ -17,25 +18,11 @@ export default function Index() {
 
     return (
         <>
-            <main className="bg-[#02040b]">
+            <main className="bg-[#02040b] w-full min-h-screen overflow-x-hidden">
                 <Head title="Página de bienvenida" />
-                <div className="fixed top-4 right-4 z-50 flex gap-4">
-    <a
-        href="/login"
-        className="border border-white text-white px-4 py-2 rounded-lg backdrop-blur-md transition duration-300 hover:shadow-[0_0_15px_white] hover:bg-white/10"
-    >
-        Inicia sesión
-    </a>
-    <a
-        href="/register"
-        className="border border-white text-white px-4 py-2 rounded-lg backdrop-blur-md transition duration-300 hover:shadow-[0_0_15px_white] hover:bg-white/10"
-    >
-        Regístrate
-    </a>
-</div>
 
                 {loading ? (
-                    <div className="animate-color-change flex h-screen flex-col items-center justify-center">
+                    <div className="animate-color-change flex h-screen w-full flex-col items-center justify-center">
                         <img
                             src="https://res.cloudinary.com/dbw3utkij/image/upload/v1747409087/logocontorno_lbmlyz.png"
                             className="animate-hue-rotate h-30 w-40 opacity-70"
@@ -43,7 +30,24 @@ export default function Index() {
                         />
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-start">
+                    <div className="flex flex-col items-center justify-start w-full">
+                        {/* Botones superiores */}
+                        <div className="fixed top-4 right-4 z-50 flex gap-4">
+                            <a
+                                href="/login"
+                                className="rounded-lg border border-white px-4 py-2 text-white backdrop-blur-md transition duration-300 hover:bg-white/10 hover:shadow-[0_0_15px_white]"
+                            >
+                                Inicia sesión
+                            </a>
+                            <a
+                                href="/register"
+                                className="rounded-lg border border-white px-4 py-2 text-white backdrop-blur-md transition duration-300 hover:bg-white/10 hover:shadow-[0_0_15px_white]"
+                            >
+                                Regístrate
+                            </a>
+                        </div>
+
+                        {/* Sección de bienvenida */}
                         <div className="relative flex h-screen w-full flex-col items-center justify-center text-center">
                             <div className="absolute inset-0 z-0">
                                 <Particles
@@ -58,13 +62,20 @@ export default function Index() {
                                 />
                             </div>
                             <div className="z-10">
-                                <GlitchText speed={1} enableShadows={true} className="custom-class">
-                                    <BlurText text=" StudyHub " delay={250} animateBy="letters" direction="top" className="mb-8" />
+                                <GlitchText speed={1} enableShadows={true}>
+                                    <BlurText
+                                        text="      StudyHub      "
+                                        delay={250}
+                                        animateBy="letters"
+                                        direction="top"
+                                        className="mb-8"
+                                    />
                                 </GlitchText>
                             </div>
                         </div>
 
-                        <div className="flex h-screen w-full items-center justify-center">
+                        {/* Sección con imagen distorsionada y texto giratorio */}
+                        <div className="relative flex h-screen w-full items-center justify-center overflow-hidden">
                             <GridDistortion
                                 imageSrc="https://picsum.photos/1920/1080?grayscale"
                                 grid={10}
@@ -73,7 +84,7 @@ export default function Index() {
                                 relaxation={0.9}
                                 className="h-full w-full object-cover"
                             />
-                            <div className="absolute flex items-center justify-center text-5xl font-bold text-white">
+                            <div className="absolute z-10 flex flex-wrap items-center justify-center px-4 text-3xl font-bold text-white md:text-5xl text-center">
                                 <p>Una forma creativa de </p>&nbsp;
                                 <RotatingText
                                     texts={['Aprender', 'Divertirse']}
@@ -90,8 +101,9 @@ export default function Index() {
                             </div>
                         </div>
 
-                        <div className="relative w-full overflow-hidden px-6 py-20 text-white">
-                            {/* Partículas en el fondo */}
+                        {/* Sección informativa */}
+                        <div className="relative w-full overflow-hidden px-4 md:px-10 py-20 text-white">
+                            {/* Partículas fondo */}
                             <div className="absolute inset-0 z-0">
                                 <Particles
                                     particleColors={['#ffffff', '#ffffff']}
@@ -105,16 +117,15 @@ export default function Index() {
                                 />
                             </div>
 
-                            {/* Contenido por encima */}
-                            <div className="relative z-10">
+                            {/* Contenido */}
+                            <div className="relative z-10 w-full">
                                 <h2 className="mb-12 text-center text-4xl font-bold">¿Qué es StudyHub?</h2>
-                                <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid w-full gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                     {/* Card 1 */}
                                     <div className="rounded-2xl bg-[#111827] p-6 shadow-xl transition-transform duration-300 hover:-translate-y-2 hover:shadow-cyan-500/30">
                                         <h3 className="mb-3 text-2xl font-semibold text-cyan-400">Aprendizaje Activo</h3>
                                         <p className="text-gray-300">
-                                            Apuntate a cursos y realiza los test que quiertas para sacarte el diploma con una manera mas facil y
-                                            divertida de aprender.
+                                            Apúntate a cursos y realiza los test que quieras para obtener tu diploma de forma más fácil y divertida.
                                         </p>
                                     </div>
 
@@ -122,9 +133,8 @@ export default function Index() {
                                     <div className="rounded-2xl bg-[#111827] p-6 shadow-xl transition-transform duration-300 hover:-translate-y-2 hover:shadow-cyan-500/30">
                                         <h3 className="mb-3 text-2xl font-semibold text-cyan-400">Crea tu cuenta</h3>
                                         <p className="text-gray-300">
-                                            Regístrate como <span className="font-medium text-white">estudiante</span> para acceder a cursos
-                                            dinámicos, o como <span className="font-medium text-white">profesor</span> para crear y gestionar tus
-                                            propios contenidos educativos. ¡Elige tu rol y comienza a explorar!
+                                            Regístrate como <span className="font-medium text-white">estudiante</span> para acceder a cursos,
+                                            o como <span className="font-medium text-white">profesor</span> para crear y gestionar tus contenidos.
                                         </p>
                                     </div>
 
@@ -132,8 +142,7 @@ export default function Index() {
                                     <div className="rounded-2xl bg-[#111827] p-6 shadow-xl transition-transform duration-300 hover:-translate-y-2 hover:shadow-cyan-500/30">
                                         <h3 className="mb-3 text-2xl font-semibold text-cyan-400">Recursos Personalizados</h3>
                                         <p className="text-gray-300">
-                                            Accede a recursos adaptados a tu nivel, ritmo y preferencias. StudyHub te acompaña paso a paso en tu
-                                            camino de aprendizaje.
+                                            Accede a recursos adaptados a tu nivel, ritmo y estilo de aprendizaje. StudyHub te acompaña paso a paso.
                                         </p>
                                     </div>
                                 </div>
@@ -142,6 +151,8 @@ export default function Index() {
                     </div>
                 )}
             </main>
+
+            <Footer></Footer>
         </>
     );
 }
