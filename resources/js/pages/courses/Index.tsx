@@ -106,7 +106,7 @@ export default function Courses({ user, courses }: Props) {
         <>
             <Head title="Cursos" />
             <header className="bg-secondary sticky top-0 z-50 h-auto">
-                <MenuDesplegable user={user} ></MenuDesplegable>
+                <MenuDesplegable user={user}></MenuDesplegable>
             </header>
 
             <main className="bg-secondary min-h-screen px-4 py-10 md:px-10 lg:px-20">
@@ -142,77 +142,86 @@ export default function Courses({ user, courses }: Props) {
                     {/* Cursos */}
                     <div className="lg:flex-1">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {cursosPaginados.map((curso) => (
-                                <div
-                                    key={curso.id}
-                                    className="flex max-h-[400px] cursor-pointer flex-col overflow-hidden rounded-xl bg-white shadow-md transition duration-300 hover:scale-102 hover:shadow-xl dark:bg-[#1a1f2b]"
-                                    onClick={() => manejarClickCurso(curso.id)}
-                                >
-                                    <img
-                                        src={
-                                            curso.image !== 'null' && curso.image !== null
-                                                ? `/${curso.image}`
-                                                : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'
-                                        }
-                                        alt={curso.name}
-                                        className="h-40 w-full object-cover"
-                                    />
-                                    <div className="flex flex-grow flex-col p-4">
-                                        <div className="mb-4">
-                                            <h2 className="text-primary text-xl font-semibold dark:text-white">{curso.name}</h2>
-                                            <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">{formatearDuración(curso.duration)}</p>
-                                        </div>
-                                        <div className="mt-auto flex items-center justify-between gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <span className="rounded-full bg-green-500 px-2 py-0.5 text-xs font-semibold text-white">CURSO</span>
-                                                <div className="flex items-center text-sm text-yellow-500">
-                                                    {Array.from({ length: 5 }).map((_, index) => {
-                                                        const fullStars = Math.floor(curso.average_rating);
-                                                        const hasHalfStar = curso.average_rating - fullStars >= 0.5;
-
-                                                        if (index < fullStars) {
-                                                            return <i key={index} className="fas fa-star"></i>;
-                                                        } else if (index === fullStars && hasHalfStar) {
-                                                            return <i key={index} className="fas fa-star-half-alt"></i>;
-                                                        } else {
-                                                            return <i key={index} className="far fa-star"></i>;
-                                                        }
-                                                    })}
-                                                    <span className="notranslate mt-0.5 ml-1 text-xs text-gray-500 dark:text-gray-400">
-                                                        ({curso.average_rating})
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            {curso.is_favorite && <span className="text-2xl text-red-500">♥</span>}
-                                        </div>
+                            {cursosPaginados.length === 0 ? (
+                                <div className="col-span-1 flex items-center justify-center sm:col-span-2 lg:col-span-3">
+                                    <div className="w-full max-w-4xl rounded-xl border border-red-400 bg-red-50 p-8 shadow-lg dark:border-red-700 dark:bg-red-900">
+                                        <p className="text-center text-xl font-semibold text-red-700 italic drop-shadow-md dark:text-red-300">
+                                            No se han encontrado cursos con esos filtros.
+                                        </p>
                                     </div>
                                 </div>
-                            ))}
+                            ) : (
+                                cursosPaginados.map((curso) => (
+                                    <div
+                                        key={curso.id}
+                                        className="flex max-h-[400px] cursor-pointer flex-col overflow-hidden rounded-xl bg-white shadow-md transition duration-300 hover:scale-102 hover:shadow-xl dark:bg-[#1a1f2b]"
+                                        onClick={() => manejarClickCurso(curso.id)}
+                                    >
+                                        <img
+                                            src={
+                                                curso.image !== 'null' && curso.image !== null
+                                                    ? `/${curso.image}`
+                                                    : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'
+                                            }
+                                            alt={curso.name}
+                                            className="h-40 w-full object-cover"
+                                        />
+                                        <div className="flex flex-grow flex-col p-4">
+                                            <div className="mb-4">
+                                                <h2 className="text-primary text-xl font-semibold dark:text-white">{curso.name}</h2>
+                                                <p className="text-primary/60 mt-1 text-sm dark:text-gray-400">{formatearDuración(curso.duration)}</p>
+                                            </div>
+                                            <div className="mt-auto flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="rounded-full bg-green-500 px-2 py-0.5 text-xs font-semibold text-white">
+                                                        CURSO
+                                                    </span>
+                                                    <div className="flex items-center text-sm text-yellow-500">
+                                                        {Array.from({ length: 5 }).map((_, index) => {
+                                                            const fullStars = Math.floor(curso.average_rating);
+                                                            const hasHalfStar = curso.average_rating - fullStars >= 0.5;
+
+                                                            if (index < fullStars) {
+                                                                return <i key={index} className="fas fa-star"></i>;
+                                                            } else if (index === fullStars && hasHalfStar) {
+                                                                return <i key={index} className="fas fa-star-half-alt"></i>;
+                                                            } else {
+                                                                return <i key={index} className="far fa-star"></i>;
+                                                            }
+                                                        })}
+                                                        <span className="notranslate mt-0.5 ml-1 text-xs text-gray-500 dark:text-gray-400">
+                                                            ({curso.average_rating})
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {curso.is_favorite && <span className="text-2xl text-red-500">♥</span>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
 
                         {/* PAGINACIÓN FUERA DEL GRID */}
                         {totalPaginas > 1 && (
                             <div className="mt-10 flex w-full justify-center">
-                                <div className="bg-secondary bottom-0 left-0 z-40 w-full py-4 lg:static lg:py-0 ">
+                                <div className="bg-secondary bottom-0 left-0 z-40 w-full py-4 lg:static lg:py-0">
                                     <Pagination>
                                         <PaginationContent className="justify-center">
-                                            <PaginationItem
-                                            className='cursor-pointer'>
+                                            <PaginationItem className="cursor-pointer">
                                                 <PaginationPrevious
                                                     onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
                                                     className={paginaActual === 1 ? 'pointer-events-none opacity-50' : ''}
                                                 />
                                             </PaginationItem>
                                             {Array.from({ length: totalPaginas }, (_, i) => i + 1).map((num) => (
-                                                <PaginationItem key={num}
-                                                className='cursor-pointer'>
+                                                <PaginationItem key={num} className="cursor-pointer">
                                                     <PaginationLink onClick={() => setPaginaActual(num)} isActive={paginaActual === num}>
                                                         {num}
                                                     </PaginationLink>
                                                 </PaginationItem>
                                             ))}
-                                            <PaginationItem
-                                            className='cursor-pointer'>
+                                            <PaginationItem className="cursor-pointer">
                                                 <PaginationNext
                                                     onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
                                                     className={paginaActual === totalPaginas ? 'pointer-events-none opacity-50' : ''}

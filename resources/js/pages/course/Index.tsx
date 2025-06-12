@@ -332,17 +332,11 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                     <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
                         <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
                             📚 Temario
-                            {course.pdf !== 'null' && (
-                                <a
-                                    href={`/${course.pdf}`}
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm text-blue-600 underline"
-                                >
-                                    <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
-                                </a>
-                            )}
+                        {course.pdf !== 'null' && (
+                            <a href={`/${course.pdf}`} download target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
+                                <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
+                            </a>
+                        )}
                         </h3>
                         <p className="mb-6 text-gray-700 dark:text-gray-300">
                             Aquí podrás <span className="font-semibold text-purple-600">descargarte los PDF</span> de los temas y{' '}
@@ -363,7 +357,6 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                                 <a
                                                     onClick={() => linkPdf(student.id, test.id)}
                                                     className="cursor-pointer rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
-                                                    className="cursor-pointer rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
                                                 >
                                                     📄 Descargar PDF
                                                 </a>
@@ -377,7 +370,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                                 </a>
                                             )}
 
-                                            {user.rol !== 'student' && (
+                                            {user.rol !== 'student' && user.id == profesor.id && (
                                                 <Button variant="destructive" size="icon" onClick={() => handleDeleteTest(test.id)}>
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>

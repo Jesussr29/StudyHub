@@ -17,9 +17,6 @@ class TestController extends Controller
     public function guardar(Request $request)
     {
         $request->validate([
-    public function guardar(Request $request)
-    {
-        $request->validate([
             'usuario_id' => 'required|string|exists:users,id',
             'aciertos' => 'required|integer',
             'fallos' => 'required|integer',
@@ -93,13 +90,8 @@ $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
         $todosAprobados = $evaluacionesAprobadas === count($testsDelCurso);
 
         if ($completoTodos && $todosAprobados) {
-            if (is_null($estudiante->completion_date)) {
+            if (!$estudiante->completion_date) {
                 $estudiante->completion_date = now();
-                $estudiante->save();
-            }
-        } else {
-            if (!is_null($estudiante->completion_date)) {
-                $estudiante->completion_date = null;
                 $estudiante->save();
             }
         }
@@ -107,5 +99,5 @@ $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
         return redirect()->route('course', ['id' => $request->idCurso])
             ->with('message', 'Test guardado correctamente.');
     }
-    }
 }
+

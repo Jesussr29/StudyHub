@@ -9,7 +9,7 @@ import { BookMarked, BookOpenCheck, CalendarDays, Mail, Phone, Settings, ShieldC
 
 import InputError from '@/components/input-error';
 import { Transition } from '@headlessui/react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 import { Cell, Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -91,7 +91,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
 
     const handleCrearTest = (e: React.FormEvent) => {
         e.preventDefault();
-        
 
         const preguntasFormateadas = formDataTest.preguntas.map((pregunta) => ({
             enunciado: pregunta.enunciado,
@@ -353,7 +352,6 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
     }, [flash?.message]);
 
     return (
-        
         <div className="min-h-screen bg-white font-sans text-gray-900 transition-colors duration-300 dark:bg-[#02040b] dark:text-gray-100">
             <MenuDesplegable user={user}></MenuDesplegable>
 
@@ -447,7 +445,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         onClick={() => abrirDialogo(curso)}
                                                         className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
                                                         style={{
-                                                            backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
+                                                            backgroundImage: `url(${curso.image && curso.image !== 'null' ? '/' + curso.image : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'})`,
                                                             backgroundSize: 'cover',
                                                             backgroundPosition: 'center',
                                                         }}
@@ -484,7 +482,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         onClick={() => abrirDialogo(curso)}
                                                         className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-105 hover:shadow-2xl sm:h-56 md:h-64"
                                                         style={{
-                                                            backgroundImage: `url(/${curso.image})`,
+                                                            backgroundImage: `url(${curso.image && curso.image !== 'null' ? '/' + curso.image : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'})`,
                                                             backgroundSize: 'cover',
                                                             backgroundPosition: 'center',
                                                         }}
@@ -753,7 +751,7 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                     onClick={() => abrirDialogo(curso)}
                                                     className="relative flex h-48 cursor-pointer items-end overflow-hidden rounded-xl bg-gray-900 shadow-lg transition-transform duration-300 hover:scale-103 hover:shadow-2xl sm:h-56 md:h-64"
                                                     style={{
-                                                        backgroundImage: `url(/${curso.image || '/placeholder.jpg'})`,
+                                                        backgroundImage: `url(${curso.image && curso.image !== 'null' ? '/' + curso.image : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'})`,
                                                         backgroundSize: 'cover',
                                                         backgroundPosition: 'center',
                                                     }}

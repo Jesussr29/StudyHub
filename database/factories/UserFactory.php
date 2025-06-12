@@ -31,6 +31,7 @@ class UserFactory extends Factory
             'rol' => fake()->randomElement(['student', 'teacher']),
             'description' => fake()->optional()->sentence() ,
             'remember_token' => Str::random(10),
+            'isBanned'=> false,
         ];
     }
 

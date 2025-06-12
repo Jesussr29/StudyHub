@@ -148,11 +148,10 @@ export default function Index() {
                                 </div>
                             </div>
                         </div>
+                        <Footer></Footer>
                     </div>
                 )}
             </main>
-
-            <Footer></Footer>
         </>
     );
 }
