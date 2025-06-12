@@ -132,8 +132,8 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                             <span className="text-xl text-yellow-400">{courseRating.media}</span>
                             <div className="text-m flex items-center text-yellow-500">
                                 {Array.from({ length: 5 }).map((_, index) => {
-                                    const fullStars = Math.floor(rating);
-                                    const hasHalfStar = rating - fullStars >= 0.5;
+                                    const fullStars = Math.floor(courseRating.media);
+                                    const hasHalfStar = courseRating.media - fullStars >= 0.5;
 
                                     if (index < fullStars) {
                                         return (
@@ -309,7 +309,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                             {test.hecho && (
                                                 <a
                                                     onClick={() => linkPdf(student.id, test.id)}
-                                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
+                                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700 cursor-pointer"
                                                 >
                                                     📄 Descargar PDF
                                                 </a>
