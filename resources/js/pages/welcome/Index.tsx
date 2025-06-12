@@ -152,6 +152,7 @@ export default function Index() {
                     </div>
                 )}
             </main>
+
         </>
     );
 }

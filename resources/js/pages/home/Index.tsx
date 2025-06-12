@@ -6,7 +6,7 @@ interface Props {
 import ShinyText from '@/components/reactBits/ShinyText/ShinyText';
 import Footer from '@/layouts/app/footer-layout';
 import MenuDesplegable from '@/layouts/app/inicio-header-layout';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useEffect, useRef, useState } from 'react';
@@ -15,9 +15,10 @@ export default function Home({ user, courses }: Props) {
     const imagenes = '/img/carrousel1.jpg';
 
     const cursos = courses.slice(0, 3).map((curso, i) => ({
+        id: curso.id,
         titulo: curso.name,
         descripcion: curso.description ?? curso.name,
-        img: curso.image !== 'null' ? curso.image : imagenes,
+        img: curso.image !== 'null' && curso.image !== null ? curso.image : imagenes,
     }));
 
     useEffect(() => {
@@ -95,6 +96,12 @@ export default function Home({ user, courses }: Props) {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    const handleCourse = (id: string) => {
+            router.get(`/course/${id}`, {
+                preserveScroll: true,
+            });
+        };
+
     return (
         <>
             <Head title="Home" />
@@ -138,7 +145,9 @@ export default function Home({ user, courses }: Props) {
                         <p className="max-w-xl text-center text-xs leading-snug text-white drop-shadow-[0_0_10px_rgba(0,0,0,0.9)] sm:text-base md:text-lg">
                             {cursos[indice].descripcion}
                         </p>
-                        <button className="mt-4 rounded-xl bg-yellow-500 px-5 py-1.5 text-sm font-semibold text-black shadow-md transition duration-300 ease-in-out hover:bg-yellow-600 sm:text-base">
+                        <button className="mt-4 rounded-xl bg-yellow-500 px-5 py-1.5 text-sm font-semibold text-black shadow-md transition duration-300 ease-in-out hover:bg-yellow-600 sm:text-base"
+                        onClick={() => handleCourse(cursos[indice].id)}
+                        >
                             Comenzar curso
                         </button>
                     </div>
