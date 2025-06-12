@@ -14,9 +14,9 @@ use Illuminate\Http\Request;
 class TestController extends Controller
 { // Asegúrate de importar el modelo
 
-public function guardar(Request $request)
-{
-    $request->validate([
+    public function guardar(Request $request)
+    {
+        $request->validate([
             'usuario_id' => 'required|string|exists:users,id',
             'aciertos' => 'required|integer',
             'fallos' => 'required|integer',
@@ -26,7 +26,6 @@ public function guardar(Request $request)
             'idTest' => 'required|string|exists:tests,id',
         ]);
 
-        // Obtener el estudiante vinculado al usuario
         $estudiante = Student::where('user_id', $request->usuario_id)
             ->where('course_id', $request->idCurso)
             ->first();
@@ -35,21 +34,20 @@ public function guardar(Request $request)
             return back()->withErrors(['usuario_id' => 'No se encontró el estudiante.']);
         }
 
-        // Eliminar evaluaciones anteriores del mismo test (si existen)
         TestEvaluation::where('student_id', $estudiante->id)
             ->where('test_id', $request->idTest)
             ->delete();
 
-    $testEvaluation = new TestEvaluation();
-    $testEvaluation->student_id = $estudiante->id;
-    $testEvaluation->correct_answers = $request->aciertos;
-    $testEvaluation->incorrect_answers = $request->fallos;
-    $testEvaluation->unanswered_questions = $request->no_respondidas;
-    $testEvaluation->score = $request->nota;
-    $testEvaluation->is_passed = $request->nota >= 5;
-    $testEvaluation->test_id = $request->idTest;
+        $testEvaluation = new TestEvaluation();
+        $testEvaluation->student_id = $estudiante->id;
+        $testEvaluation->correct_answers = $request->aciertos;
+        $testEvaluation->incorrect_answers = $request->fallos;
+        $testEvaluation->unanswered_questions = $request->no_respondidas;
+        $testEvaluation->score = $request->nota;
+        $testEvaluation->is_passed = $request->nota >= 5;
+        $testEvaluation->test_id = $request->idTest;
 
-    $testEvaluation->save();
+        $testEvaluation->save();
 
         // Obtener o crear la estadística
         $estadistica = Stadistic::firstOrNew([
@@ -66,28 +64,35 @@ public function guardar(Request $request)
         $estadistica->status = $request->nota >= 5 ? 'aprobado' : 'suspendido';
         $estadistica->completed_at = now();
         $estadistica->save();
+$testsDelCurso = Test::where('course_id', $request->idCurso)->pluck('id')->toArray();
 
-        $testsDelCurso = Test::where('course_id', $request->idCurso)->pluck('id')->toArray();
+$evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
+    ->whereIn('test_id', $testsDelCurso)
+    ->get();
 
-        $evaluaciones = TestEvaluation::where('student_id', $estudiante->id)
-            ->whereIn('test_id', $testsDelCurso)
-            ->get();
+$testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
 
-        $testsRealizadosIds = $evaluaciones->pluck('test_id')->unique()->toArray();
+$completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
 
-        $completoTodos = count($testsRealizadosIds) === count($testsDelCurso);
+$evaluacionesAprobadas = $evaluaciones->filter(function ($eval) {
+    return $eval->score >= 5;
+})->count();
 
-        $todosAprobados = $evaluaciones->every(fn($eval) => $eval->nota >= 5);
+$todosAprobados = $evaluacionesAprobadas === count($testsDelCurso);
 
-        if ($completoTodos && $todosAprobados) {
-            if (!$estudiante->completion_date) {
-                $estudiante->completion_date = now();
-                $estudiante->save();
-            }
-        }
+if ($completoTodos && $todosAprobados) {
+    if (is_null($estudiante->completion_date)) {
+        $estudiante->completion_date = now();
+        $estudiante->save();
+    }
+} else {
+    if (!is_null($estudiante->completion_date)) {
+        $estudiante->completion_date = null;
+        $estudiante->save();
+    }
+}
 
         return redirect()->route('course', ['id' => $request->idCurso])
             ->with('message', 'Test guardado correctamente.');
-}
-
+    }
 }

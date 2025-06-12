@@ -100,6 +100,8 @@ export default function Courses({ user, courses }: Props) {
 
     const totalPaginas = Math.ceil(cursosFiltrados.length / cursosPorPagina);
 
+    console.log(courses);
+
     return (
         <>
             <Head title="Cursos" />
@@ -148,7 +150,7 @@ export default function Courses({ user, courses }: Props) {
                                 >
                                     <img
                                         src={
-                                            curso.image !== 'null'
+                                            curso.image !== 'null' && curso.image !== null
                                                 ? `/${curso.image}`
                                                 : 'https://res.cloudinary.com/dbw3utkij/image/upload/v1747409076/LOGOSTUDYHUB_ra6mxz.png'
                                         }
