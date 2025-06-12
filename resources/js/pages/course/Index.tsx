@@ -40,6 +40,10 @@ const linkPdf = (student_id: String, test_id: String) => {
     router.get(`/test/${student_id}/${test_id}`);
 };
 
+const tituloPdf = (course_id: String) => {
+    router.get(`/course/titulo/${course_id}`);
+};
+
 const handleFavorite = (userId: string, courseId: string) => {
     const formData = new FormData();
     formData.append('user_id', userId);
@@ -98,7 +102,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
         <>
             <Head title={course.name} />
             <header className="bg-secondary sticky top-0 z-50 shadow">
-                <MenuDesplegable user={user} ></MenuDesplegable>
+                <MenuDesplegable user={user}></MenuDesplegable>
             </header>
             {message && (
                 <div className="fixed top-4 right-4 z-50">
@@ -245,7 +249,14 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                             </button>
                                         ))}
 
-                                    {student && student.completion_date !== null && <p className="font-semibold text-gray-600">Curso completado</p>}
+                                    {student && student.completion_date !== null && (
+                                        <button
+                                            className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700 sm:flex-auto"
+                                            onClick={() => tituloPdf(course.id)}
+                                        >
+                                            Descargar Titulo
+                                        </button>
+                                    )}
                                 </>
                             )}
                             {isFavorite ? (
@@ -283,7 +294,6 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                         <p className="mt-3 px-4 text-sm text-gray-700 dark:text-gray-300">
                             {profesor.description ? profesor.description : 'El profesor aún no ha proporcionado una descripción.'}
                         </p>
-
                     </div>
                 </div>
 
@@ -291,11 +301,17 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                     <section className="mx-auto mt-10 max-w-[95%] rounded-xl bg-gray-100 p-8 shadow-lg transition-all dark:bg-[#101828]">
                         <h3 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white">
                             📚 Temario
-                        {course.pdf !== 'null' && (
-                            <a href={`/${course.pdf}`} download target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 underline">
-                                <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
-                            </a>
-                        )}
+                            {course.pdf !== 'null' && (
+                                <a
+                                    href={`/${course.pdf}`}
+                                    download
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-blue-600 underline"
+                                >
+                                    <FontAwesomeIcon icon={faFilePdf} className="text-[1.4rem]" />
+                                </a>
+                            )}
                         </h3>
                         <p className="mb-6 text-gray-700 dark:text-gray-300">
                             Aquí podrás <span className="font-semibold text-purple-600">descargarte los PDF</span> de los temas y{' '}
@@ -315,7 +331,7 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                                             {test.hecho && (
                                                 <a
                                                     onClick={() => linkPdf(student.id, test.id)}
-                                                    className="rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700 cursor-pointer"
+                                                    className="cursor-pointer rounded-lg bg-purple-600 px-4 py-2 text-sm text-white transition hover:bg-purple-700"
                                                 >
                                                     📄 Descargar PDF
                                                 </a>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Course\CourseController;
+use App\Http\Controllers\Course\TituloPdf;
 use App\Http\Controllers\Courses\CoursesController;
 use App\Http\Controllers\Favorite\FavoriteController;
 use App\Http\Controllers\Home\HomeController as HomeController;
@@ -119,6 +120,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
     Route::get('/test/{student_id}/{test_id}', [TestPdf::class, 'generarPdf'])->name('test');
     Route::get('/ver-pdf', [TestPdf::class, 'verPDF']);
+    Route::get('/course/titulo/{course_id}', [TituloPdf::class, 'generarPdfTitulo'])->name('generarPdfTitulo');
+    Route::get('/ver-pdf', [TituloPdf::class, 'verPDF']);
 
 
 

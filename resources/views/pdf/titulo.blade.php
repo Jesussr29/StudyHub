@@ -65,7 +65,7 @@
     <div class="datos-usuario">
         <p><strong>Nombre:</strong> {{ $usuario->name ?? 'Usuario desconocido' }}</p>
         <p><strong>Email:</strong> {{ $usuario->email ?? 'Sin email' }}</p>
-        <p><strong>Curso:</strong> {{ $test->name ?? 'Curso desconocido' }}</p>
+        <p><strong>Curso:</strong> {{ $curso->name ?? 'Curso desconocido' }}</p>
     </div>
 
     <div class="mensaje-aprobado">
@@ -73,7 +73,7 @@
     </div>
 
     <div class="nota-final">
-        Nota final: {{ $testEvaluation->score ?? 'N/A' }}
+        APROBADO
     </div>
 
     <div class="firma">
@@ -81,5 +81,7 @@
         <hr class="firma-line">
         <p>_______________________</p>
     </div>
+    <br>
+    <p>Fecha de emisión: {{ now()->format('d/m/Y') }}</p>
 </body>
 </html>
