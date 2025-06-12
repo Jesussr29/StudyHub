@@ -32,9 +32,10 @@ interface Props {
 }
 
 export default function ProfileIndex({ user, role, enrollments = [], stadistics = [], courses = [], courseStats = [] }: Props) {
+    const [idCursoSeleccionado, setIdCursoSeleccionado] = useState<number | null>(null);
+
     //CREAR TEST
 
-    const [idCursoSeleccionado, setIdCursoSeleccionado] = useState<number | null>(null);
     const [mostrarModalTest, setMostrarModalTest] = useState(false);
 
     // Funciones para abrir y cerrar el modal
@@ -112,8 +113,11 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
             forceFormData: true,
             onSuccess: () => {
                 setMostrarModalTest(false);
+                location.reload();
             },
         });
+
+
     };
 
     // CREAR CURSO
@@ -759,8 +763,8 @@ export default function ProfileIndex({ user, role, enrollments = [], stadistics 
                                                         type="button"
                                                         onClick={(e) => {
                                                             e.stopPropagation(); // evitar que se abra el diálogo
-                                                            abrirModalTest();
-                                                            setIdCursoSeleccionado(curso.id);
+                                                            router.get(`/profile/${curso.id}/editCourse`);
+
                                                         }}
                                                         className="absolute top-4 left-4 z-20 cursor-pointer rounded bg-yellow-600 px-3 py-1 text-xs font-semibold text-white hover:bg-yellow-700"
                                                     >

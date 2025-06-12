@@ -102,6 +102,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit']);
     Route::put('/profile/update', [ProfileController::class, 'update']);
     Route::get('/profile/{id}/profile', [ProfileController::class, 'profileAdmin']);
+    Route::post('/profile/createCourse', [ProfileController::class, 'createCourse'])->name('createCourse');
+    Route::post('/profile/createTest', [ProfileController::class, 'createTest'])->name('createTest');
+    Route::get('/profile/{idCursoSeleccionado}/editCourse', [ProfileController::class, 'editCourse'])->name('editCourse');
+    Route::put('/profile/{courseid}/storeCourse', [ProfileController::class, 'updateCourse'])->name('updateCourse');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::get('/courses', [CoursesController::class, 'index'])->name('courses');
     Route::get('/course/{id}', [CourseController::class, 'index'])->name('course');
@@ -115,8 +119,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/rating', [RatingController::class, 'rating'])->name('rating');
     Route::get('/test/{student_id}/{test_id}', [TestPdf::class, 'generarPdf'])->name('test');
     Route::get('/ver-pdf', [TestPdf::class, 'verPDF']);
-    Route::post('/profile/createCourse', [ProfileController::class, 'createCourse'])->name('createCourse');
-    Route::post('/profile/createTest', [ProfileController::class, 'createTest'])->name('createTest');
+
+
 
 
 

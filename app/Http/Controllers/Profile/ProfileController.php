@@ -175,6 +175,11 @@ class ProfileController extends Controller
     public function createTest(Request $request)
     {
 
+        //sumar duracion al curso
+        $course = Course::findOrFail($request->id_curso);
+        $course->duration += $request->duracion;
+        $course->save();
+
         $test = new Test();
         $test->name = $request->nombre;
         $test->course_id = $request->id_curso;
@@ -233,5 +238,64 @@ class ProfileController extends Controller
         }
 
         return redirect('/profile')->with('message', "El test ha sido creado correctamente.");
+    }
+    public function editCourse($id)
+    {
+
+        $course = Course::findOrFail($id);
+        $teacher = Auth::user();
+
+
+        return Inertia::render('profile/EditCourse', [
+            'course' => $course,
+            'teacher' => $teacher->id,
+        ]);
+    }
+
+    public function updateCourse(Request $request, $id)
+    {
+
+        $course = Course::findOrFail($id);
+        
+        
+        $request->validate([
+            'name' => 'required|string|max:255|unique:courses,name,' . $course->id,
+            'description' => 'required|string',
+            'teacher_id' => 'required|exists:users,id',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'pdf' => 'nullable|mimes:pdf|max:5120',
+        ]);
+        
+        $course->name = $request->name;
+        $course->description = $request->description;
+        $course->teacher_id = $request->teacher_id;
+        
+        if ($request->hasFile('image')) {
+            if ($course->image && file_exists(public_path($course->image))) {
+                unlink(public_path($course->image));
+            }
+            
+            $image = $request->file('image');
+            $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $pathFolder = 'img/Courses';
+            $image->move(public_path($pathFolder), $filename);
+            $course->image = $pathFolder . '/' . $filename;
+        }
+        
+        if ($request->hasFile('pdf')) {
+            if ($course->pdf && file_exists(public_path($course->pdf))) {
+                unlink(public_path($course->pdf));
+            }
+            
+            $pdf = $request->file('pdf');
+            $filename = time() . '_' . Str::random(10) . '.' . $pdf->getClientOriginalExtension();
+            $pathFolder = 'pdf/Courses';
+            $pdf->move(public_path($pathFolder), $filename);
+            $course->pdf = $pathFolder . '/' . $filename;
+        }
+        
+        $course->save();
+
+        return redirect('/profile')->with('message', "El curso '{$course->name}' ha sido actualizado correctamente.");
     }
 }
