@@ -216,20 +216,37 @@ export default function Course({ course, profesor, tests, user, isFavorite, matr
                         <p className="text-primary/80 mb-6">⏱️ {formatearDuración(course.duration)} </p>
 
                         <div className="flex space-x-4">
-                            {!matriculado ? (
-                                <button
-                                    className="cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700"
-                                    onClick={() => handleEnrollment(course.id)}
-                                >
-                                    Matricularse
-                                </button>
-                            ) : (
-                                <button
-                                    className="cursor-pointer rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-red-700"
-                                    onClick={() => handleEnrollment(course.id)}
-                                >
-                                    Darse de baja
-                                </button>
+                            {user.rol !== 'teacher' && user.rol !== 'admin' && (
+                                <>
+                                    {!student && (
+                                        <button
+                                            className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700 sm:flex-auto"
+                                            onClick={() => handleEnrollment(course.id)}
+                                        >
+                                            Matricularse
+                                        </button>
+                                    )}
+
+                                    {student &&
+                                        student.completion_date == null &&
+                                        (!matriculado ? (
+                                            <button
+                                                className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-purple-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-purple-700 sm:flex-auto"
+                                                onClick={() => handleEnrollment(course.id)}
+                                            >
+                                                Matricularse
+                                            </button>
+                                        ) : (
+                                            <button
+                                                className="max-w-[200px] flex-1 cursor-pointer rounded-lg bg-red-600 px-6 py-2 font-semibold text-white transition duration-300 hover:bg-red-700 sm:flex-auto"
+                                                onClick={() => handleEnrollment(course.id)}
+                                            >
+                                                Darse de baja
+                                            </button>
+                                        ))}
+
+                                    {student && student.completion_date !== null && <p className="font-semibold text-gray-600">Curso completado</p>}
+                                </>
                             )}
                             {isFavorite ? (
                                 <button

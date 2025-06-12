@@ -185,7 +185,7 @@ class ProfileController extends Controller
         $test->course_id = $request->id_curso;
         $test->duration = $request->duracion;
         $test->number_of_questions = $request->numeroPreguntas;
-        $test->status = "peo";
+        $test->status = "null";
 
         $test->save();
 
